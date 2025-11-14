@@ -1,16 +1,29 @@
-# React + Vite
+# Form Check
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Form Check is a personal project that will be a weightlifting form analyzing web application, allowing users to upload videos of their weightlifting form ( from the front and side angles ), and using AI to analyze their form / provide feedback on form improvements.
 
-Currently, two official plugins are available:
+The various phases of this project will include:
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Phase 1 - POC
 
-## React Compiler
+The simplest, fastest implementation that utilizes AI - a front-end react app built with vite that will
+- allow users to upload a max 30 second video in .mov/.mp4
+- allow users to preview the video
+- allow users to submit the video, which will
+    - extract frames from video in intervals
+    - convert frames to base64 images
+    - send key frames to a lambda function which will
+    - proxy request to claude api to keep api key secure
+    - display claude response in ui
+- deploy to AWS ( likely S3, CloudFront, API Gateway along with Lambda )
+- optimize by limiting frame count to 10 frames max, and compare results
+- add client-side video validation for size / format
+- verify that the UI is mobile friendly, and well tested
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Phase 2 - User authentication
 
-## Expanding the ESLint configuration
+If Phase 1 is worth using, then Phase 2 will expand on it by adding a back-end in Python that allows users to register and log in. 
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## Phase 3 - Form Check AI Enhancements
+
+Investigate what steps can be taken to enhance the quality of form feedback, such as utilizing a RAG system. Consider adding in a Chat feature, and persisting user history as part of the context provided to the AI. 
