@@ -1,0 +1,1 @@
+// Loading spinner to show during AI analysis
