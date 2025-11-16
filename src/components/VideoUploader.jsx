@@ -124,36 +124,40 @@ const VideoUploader = ({ onVideoSelect, onAnalyze }) => {
   return (
     <div className="max-w-2xl mx-auto p-6">
       <div className="text-center mb-8">
-        <h1 className="text-4xl font-bold text-gray-900 mb-2">Form Check</h1>
-        <p className="text-gray-600">Upload your workout video for AI-powered form analysis</p>
+        <h1 className="text-5xl font-black text-[#303030] mb-2 tracking-tight">
+          FORM CHECK
+        </h1>
+        <p className="text-[#303030] text-lg opacity-80">
+          Upload your workout video for AI-powered form analysis
+        </p>
       </div>
 
       {/* Exercise Type Selection */}
       {!selectedFile && (
         <div className="mb-6">
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-bold text-[#303030] mb-3 uppercase tracking-wide">
             Select Exercise Type
           </label>
           <div className="flex gap-4">
             <button
               onClick={() => setExerciseType('squat')}
-              className={`flex-1 py-3 px-4 rounded-lg border-2 font-medium transition-colors ${
+              className={`flex-1 py-4 px-4 rounded-lg border-2 font-bold transition-all transform hover:scale-105 ${
                 exerciseType === 'squat'
-                  ? 'border-blue-500 bg-blue-50 text-blue-700'
-                  : 'border-gray-300 bg-white text-gray-700 hover:border-gray-400'
+                  ? 'border-[#DFB960] bg-[#DFB960] text-[#303030] shadow-lg'
+                  : 'border-[#303030] border-2 bg-white text-[#303030] hover:border-[#DFB960]'
               }`}
             >
-              🏋️ Squat
+              Squat
             </button>
             <button
               onClick={() => setExerciseType('deadlift')}
-              className={`flex-1 py-3 px-4 rounded-lg border-2 font-medium transition-colors ${
+              className={`flex-1 py-4 px-4 rounded-lg border-2 font-bold transition-all transform hover:scale-105 ${
                 exerciseType === 'deadlift'
-                  ? 'border-blue-500 bg-blue-50 text-blue-700'
-                  : 'border-gray-300 bg-white text-gray-700 hover:border-gray-400'
+                  ? 'border-[#DFB960] bg-[#DFB960] text-[#303030] shadow-lg'
+                  : 'border-[#303030] border-2 bg-white text-[#303030] hover:border-[#DFB960]'
               }`}
             >
-              💪 Deadlift
+              Deadlift
             </button>
           </div>
         </div>
@@ -166,10 +170,10 @@ const VideoUploader = ({ onVideoSelect, onAnalyze }) => {
           onDragLeave={handleDrag}
           onDragOver={handleDrag}
           onDrop={handleDrop}
-          className={`border-2 border-dashed rounded-lg p-12 text-center transition-colors ${
+          className={`border-2 border-dashed rounded-lg p-12 text-center transition-all ${
             dragActive
-              ? 'border-blue-500 bg-blue-50'
-              : 'border-gray-300 bg-gray-50 hover:border-gray-400'
+              ? ' bg-[#DFB960] bg-opacity-10 scale-105'
+              : 'border-[#303030] border-opacity-30 bg-[#F5F5F5] hover:border-[#DFB960] hover:border-opacity-50'
           }`}
         >
           <input
@@ -180,9 +184,9 @@ const VideoUploader = ({ onVideoSelect, onAnalyze }) => {
             className="hidden"
           />
 
-          <div className="mb-4">
+          <div className="mb-6">
             <svg
-              className="mx-auto h-16 w-16 text-gray-400"
+              className="mx-auto h-20 w-20 text-[#DFB960]"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -196,16 +200,16 @@ const VideoUploader = ({ onVideoSelect, onAnalyze }) => {
             </svg>
           </div>
 
-          <p className="text-lg font-medium text-gray-700 mb-2">
+          <p className="text-xl font-bold text-[#303030] mb-2">
             Drop your video here, or click to browse
           </p>
-          <p className="text-sm text-gray-500 mb-4">
+          <p className="text-sm text-[#303030] opacity-70 mb-6">
             MP4 or MOV • Max 30 seconds • Max 100MB
           </p>
 
           <button
             onClick={handleButtonClick}
-            className="bg-blue-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors"
+            className="bg-[#E26D5C] text-white px-8 py-3 rounded-lg font-bold text-lg hover:bg-[#d25a48] transition-all transform hover:scale-105 shadow-md"
           >
             Choose File
           </button>
@@ -213,7 +217,7 @@ const VideoUploader = ({ onVideoSelect, onAnalyze }) => {
       ) : (
         <div className="space-y-4">
           {/* Video Preview */}
-          <div className="relative rounded-lg overflow-hidden bg-black">
+          <div className="relative rounded-lg overflow-hidden bg-[#303030] shadow-xl border-4 border-[#DFB960]">
             <video
               ref={videoRef}
               src={videoUrl}
@@ -223,17 +227,17 @@ const VideoUploader = ({ onVideoSelect, onAnalyze }) => {
           </div>
 
           {/* Video Info */}
-          <div className="bg-gray-50 rounded-lg p-4">
+          <div className="bg-[#F5F5F5] rounded-lg p-4 border-2 border-[#303030] border-opacity-20">
             <div className="flex items-center justify-between">
               <div>
-                <p className="font-medium text-gray-900">{selectedFile.name}</p>
-                <p className="text-sm text-gray-500">
+                <p className="font-bold text-[#303030]">{selectedFile.name}</p>
+                <p className="text-sm text-[#303030] opacity-70">
                   {(selectedFile.size / (1024 * 1024)).toFixed(2)} MB • {exerciseType.charAt(0).toUpperCase() + exerciseType.slice(1)}
                 </p>
               </div>
               <button
                 onClick={handleRemoveVideo}
-                className="text-red-600 hover:text-red-700 font-medium"
+                className="text-[#E26D5C] hover:text-[#d25a48] font-bold transition-colors"
               >
                 Remove
               </button>
@@ -243,7 +247,7 @@ const VideoUploader = ({ onVideoSelect, onAnalyze }) => {
           {/* Analyze Button */}
           <button
             onClick={handleAnalyze}
-            className="w-full bg-green-600 text-white py-3 px-6 rounded-lg font-medium text-lg hover:bg-green-700 transition-colors"
+            className="w-full bg-[#2D5016] text-white py-4 px-6 rounded-lg font-black text-xl hover:bg-[#234010] transition-all transform hover:scale-105 shadow-lg uppercase tracking-wide"
           >
             Analyze Form
           </button>
@@ -252,19 +256,33 @@ const VideoUploader = ({ onVideoSelect, onAnalyze }) => {
 
       {/* Error Message */}
       {error && (
-        <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg">
-          <p className="text-red-700 text-sm">{error}</p>
+        <div className="mt-4 p-4 bg-[#E26D5C] bg-opacity-10 border-2 border-[#E26D5C] rounded-lg">
+          <p className="text-[#E26D5C] text-sm font-semibold">{error}</p>
         </div>
       )}
 
       {/* Instructions */}
-      <div className="mt-8 bg-blue-50 rounded-lg p-4">
-        <h3 className="font-medium text-blue-900 mb-2">Tips for best results:</h3>
-        <ul className="text-sm text-blue-800 space-y-1">
-          <li>• Record from the side view for squats and deadlifts</li>
-          <li>• Ensure good lighting and the full body is visible</li>
-          <li>• Keep the video under 30 seconds</li>
-          <li>• Film at least one complete rep</li>
+      <div className="mt-8 bg-[#DFB960] bg-opacity-15 rounded-lg p-5 border-l-4 border-[#DFB960]">
+        <h3 className="font-black text-[#303030] mb-3 uppercase tracking-wide text-sm">
+          Tips for best results:
+        </h3>
+        <ul className="text-sm text-[#303030] space-y-2 font-medium">
+          <li className="flex items-start">
+            <span className="text-[#DFB960] mr-2 font-bold">▸</span>
+            Record from the side view for squats and deadlifts
+          </li>
+          <li className="flex items-start">
+            <span className="text-[#DFB960] mr-2 font-bold">▸</span>
+            Ensure good lighting and the full body is visible
+          </li>
+          <li className="flex items-start">
+            <span className="text-[#DFB960] mr-2 font-bold">▸</span>
+            Keep the video under 30 seconds
+          </li>
+          <li className="flex items-start">
+            <span className="text-[#DFB960] mr-2 font-bold">▸</span>
+            Film at least one complete rep
+          </li>
         </ul>
       </div>
     </div>
