@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react';
 
-const VideoUploader = ({ onVideoSelect, onAnalyze }) => {
+const VideoUploader = ({ onAnalyze }) => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [videoUrl, setVideoUrl] = useState(null);
   const [dragActive, setDragActive] = useState(false);
@@ -60,9 +60,6 @@ const VideoUploader = ({ onVideoSelect, onAnalyze }) => {
     try {
       await checkVideoDuration(video);
       setSelectedFile(file);
-      if (onVideoSelect) {
-        onVideoSelect(file);
-      }
     } catch (err) {
       setError(err.message);
       setVideoUrl(null);
