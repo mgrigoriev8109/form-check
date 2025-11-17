@@ -116,13 +116,14 @@ const VideoUploader = ({ onVideoSelect, onAnalyze }) => {
   };
 
   const handleAnalyze = () => {
+    debugger;
     if (selectedFile && onAnalyze) {
       onAnalyze(selectedFile, exerciseType);
     }
   };
 
-  return (
-    <div className="max-w-2xl mx-auto p-6">
+  function Header() {
+    return (
       <div className="text-center mb-8">
         <h1 className="text-5xl font-black text-[#303030] mb-2 tracking-tight">
           FORM CHECK
@@ -131,9 +132,11 @@ const VideoUploader = ({ onVideoSelect, onAnalyze }) => {
           Upload your workout video for AI-powered form analysis
         </p>
       </div>
+    )
+  }
 
-      {/* Exercise Type Selection */}
-      {!selectedFile && (
+  function SelectExercise() {
+    return (
         <div className="mb-6">
           <label className="block text-sm font-bold text-[#303030] mb-3 uppercase tracking-wide">
             Select Exercise Type
@@ -161,10 +164,11 @@ const VideoUploader = ({ onVideoSelect, onAnalyze }) => {
             </button>
           </div>
         </div>
-      )}
+    )
+  }
 
-      {/* Upload Area or Video Preview */}
-      {!selectedFile ? (
+  function UploadVideo() {
+    return (
         <div
           onDragEnter={handleDrag}
           onDragLeave={handleDrag}
@@ -214,9 +218,12 @@ const VideoUploader = ({ onVideoSelect, onAnalyze }) => {
             Choose File
           </button>
         </div>
-      ) : (
+    )
+  }
+
+  function PreviewVideo() {
+    return (
         <div className="space-y-4">
-          {/* Video Preview */}
           <div className="relative rounded-lg overflow-hidden bg-[#303030] shadow-xl border-4 border-[#DFB960]">
             <video
               ref={videoRef}
@@ -226,7 +233,6 @@ const VideoUploader = ({ onVideoSelect, onAnalyze }) => {
             />
           </div>
 
-          {/* Video Info */}
           <div className="bg-[#F5F5F5] rounded-lg p-4 border-2 border-[#303030] border-opacity-20">
             <div className="flex items-center justify-between">
               <div>
@@ -244,7 +250,6 @@ const VideoUploader = ({ onVideoSelect, onAnalyze }) => {
             </div>
           </div>
 
-          {/* Analyze Button */}
           <button
             onClick={handleAnalyze}
             className="w-full bg-[#2D5016] text-white py-4 px-6 rounded-lg font-black text-xl hover:bg-[#234010] transition-all transform hover:scale-105 shadow-lg uppercase tracking-wide"
@@ -252,16 +257,11 @@ const VideoUploader = ({ onVideoSelect, onAnalyze }) => {
             Analyze Form
           </button>
         </div>
-      )}
+    )
+  }
 
-      {/* Error Message */}
-      {error && (
-        <div className="mt-4 p-4 bg-[#E26D5C] bg-opacity-10 border-2 border-[#E26D5C] rounded-lg">
-          <p className="text-[#E26D5C] text-sm font-semibold">{error}</p>
-        </div>
-      )}
-
-      {/* Instructions */}
+  function RenderInstructions() {
+    return (
       <div className="mt-8 bg-[#DFB960] bg-opacity-15 rounded-lg p-5 border-l-4 border-[#DFB960]">
         <h3 className="font-black text-[#303030] mb-3 uppercase tracking-wide text-sm">
           Tips for best results:
@@ -285,6 +285,33 @@ const VideoUploader = ({ onVideoSelect, onAnalyze }) => {
           </li>
         </ul>
       </div>
+    )
+  }
+
+  function RenderError() {
+    return (
+        <div className="mt-4 p-4 bg-[#E26D5C] bg-opacity-10 border-2 border-[#E26D5C] rounded-lg">
+          <p className="text-[#E26D5C] text-sm font-semibold">{error}</p>
+        </div>
+    )
+  }
+
+  return (
+    <div className="max-w-2xl mx-auto p-6">
+      <Header></Header>
+
+      {!selectedFile && ( <SelectExercise></SelectExercise>)}
+
+      {!selectedFile ? ( <UploadVideo></UploadVideo>
+      ) : (
+        <PreviewVideo></PreviewVideo>
+      )}
+
+      {error && (
+        <RenderError></RenderError>
+      )}
+
+      <RenderInstructions></RenderInstructions>
     </div>
   );
 };
