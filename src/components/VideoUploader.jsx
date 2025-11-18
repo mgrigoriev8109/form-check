@@ -9,19 +9,16 @@ const VideoUploader = ({ onAnalyze }) => {
   const fileInputRef = useRef(null);
   const videoRef = useRef(null);
 
-  // Validation constants
   const MAX_FILE_SIZE = 100 * 1024 * 1024; // 100MB
   const MAX_DURATION = 30; // 30 seconds
   const ALLOWED_FORMATS = ['video/mp4', 'video/quicktime', 'video/x-m4v'];
 
   const validateVideo = (file) => {
-    // Check file type
     if (!ALLOWED_FORMATS.includes(file.type)) {
       setError('Please upload a .mp4 or .mov file');
       return false;
     }
 
-    // Check file size
     if (file.size > MAX_FILE_SIZE) {
       setError('File size must be less than 100MB');
       return false;
@@ -49,11 +46,9 @@ const VideoUploader = ({ onAnalyze }) => {
       return;
     }
 
-    // Create object URL for preview
     const url = URL.createObjectURL(file);
     setVideoUrl(url);
 
-    // Create video element to check duration
     const video = document.createElement('video');
     video.src = url;
 
@@ -118,19 +113,6 @@ const VideoUploader = ({ onAnalyze }) => {
       onAnalyze(selectedFile, exerciseType);
     }
   };
-
-  function Header() {
-    return (
-      <div className="text-center mb-8">
-        <h1 className="text-5xl font-black text-[#303030] mb-2 tracking-tight">
-          FORM CHECK
-        </h1>
-        <p className="text-[#303030] text-lg opacity-80">
-          Upload your workout video for AI-powered form analysis
-        </p>
-      </div>
-    )
-  }
 
   function SelectExercise() {
     return (
@@ -257,33 +239,6 @@ const VideoUploader = ({ onAnalyze }) => {
     )
   }
 
-  function RenderInstructions() {
-    return (
-      <div className="mt-8 bg-[#DFB960] bg-opacity-15 rounded-lg p-5 border-l-4 border-[#DFB960]">
-        <h3 className="font-black text-[#303030] mb-3 uppercase tracking-wide text-sm">
-          Tips for best results:
-        </h3>
-        <ul className="text-sm text-[#303030] space-y-2 font-medium">
-          <li className="flex items-start">
-            <span className="text-[#DFB960] mr-2 font-bold">▸</span>
-            Record from the side view for squats and deadlifts
-          </li>
-          <li className="flex items-start">
-            <span className="text-[#DFB960] mr-2 font-bold">▸</span>
-            Ensure good lighting and the full body is visible
-          </li>
-          <li className="flex items-start">
-            <span className="text-[#DFB960] mr-2 font-bold">▸</span>
-            Keep the video under 30 seconds
-          </li>
-          <li className="flex items-start">
-            <span className="text-[#DFB960] mr-2 font-bold">▸</span>
-            Film at least one complete rep
-          </li>
-        </ul>
-      </div>
-    )
-  }
 
   function RenderError() {
     return (
@@ -294,21 +249,17 @@ const VideoUploader = ({ onAnalyze }) => {
   }
 
   return (
-    <div className="max-w-2xl mx-auto p-6">
-      <Header></Header>
+    <div className="max-w-2xl mx-auto">
+      {!selectedFile && ( <SelectExercise />)}
 
-      {!selectedFile && ( <SelectExercise></SelectExercise>)}
-
-      {!selectedFile ? ( <UploadVideo></UploadVideo>
+      {!selectedFile ? ( <UploadVideo />
       ) : (
-        <PreviewVideo></PreviewVideo>
+        <PreviewVideo />
       )}
 
       {error && (
-        <RenderError></RenderError>
+        <RenderError />
       )}
-
-      <RenderInstructions></RenderInstructions>
     </div>
   );
 };
