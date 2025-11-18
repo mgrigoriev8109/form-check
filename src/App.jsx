@@ -1,77 +1,103 @@
 import { useState } from 'react'
 import VideoUploader from './components/VideoUploader'
+import VideoPreview from './components/VideoPreview'
+import FormResults from './components/FormResults'
 import AppHeader from './components/AppHeader'
 import VideoUploadTips from './components/VideoUploadTips'
 
 function App() {
-  const [loading, setLoading] = useState(false);
+  // Stage management: 'upload' | 'preview' | 'analyzing' | 'results'
+  const [stage, setStage] = useState('upload');
+
+  // Video state
+  const [videoFile, setVideoFile] = useState(null);
+  const [videoUrl, setVideoUrl] = useState(null);
+  const [exerciseType, setExerciseType] = useState(null);
+
+  // Analysis state
   const [results, setResults] = useState(null);
   const [error, setError] = useState(null);
 
-  const handleAnalyze = async (videoFile, exerciseType) => {
-    setLoading(true);
+  const handleVideoSelected = (file, exercise) => {
+    const url = URL.createObjectURL(file);
+    setVideoFile(file);
+    setVideoUrl(url);
+    setExerciseType(exercise);
+    setStage('preview');
+  };
+
+  const handleAnalyze = async () => {
+    setStage('analyzing');
     setError(null);
-    
+
     try {
+      // we probably want to stick this function into a utility
       const frames = await extractFrames(videoFile);
-      
+
       const response = await fetch('your-api-endpoint', {
         method: 'POST',
         body: JSON.stringify({ frames, exerciseType })
       });
-      
+
       const data = await response.json();
       setResults(data);
-      
+      setStage('results');
+
     } catch (err) {
       setError(err.message);
-    } finally {
-      setLoading(false);
+      setStage('preview'); // Return to preview on error
     }
   };
 
-  function VideoUploadTips() {
-    return (
-      <div className="mt-8 bg-[#DFB960] bg-opacity-15 rounded-lg p-5 border-l-4 border-[#DFB960]">
-        <h3 className="font-black text-[#303030] mb-3 uppercase tracking-wide text-sm">
-          Tips for best results:
-        </h3>
-        <ul className="text-sm text-[#303030] space-y-2 font-medium">
-          <li className="flex items-start">
-            <span className="text-[#DFB960] mr-2 font-bold">▸</span>
-            Record from the side view for squats and deadlifts
-          </li>
-          <li className="flex items-start">
-            <span className="text-[#DFB960] mr-2 font-bold">▸</span>
-            Ensure good lighting and the full body is visible
-          </li>
-          <li className="flex items-start">
-            <span className="text-[#DFB960] mr-2 font-bold">▸</span>
-            Keep the video under 30 seconds
-          </li>
-          <li className="flex items-start">
-            <span className="text-[#DFB960] mr-2 font-bold">▸</span>
-            Film at least one complete rep
-          </li>
-        </ul>
-      </div>
-    )
-  }
+  // Handler when user clicks "Upload Another Video"
+  const handleUploadAnother = () => {
+    // Clean up
+    if (videoUrl) {
+      URL.revokeObjectURL(videoUrl);
+    }
+
+    // Reset all state
+    setVideoFile(null);
+    setVideoUrl(null);
+    setExerciseType(null);
+    setResults(null);
+    setError(null);
+    setStage('upload');
+  };
 
   return (
     <div>
       <AppHeader />
-      <VideoUploader onAnalyze={handleAnalyze} />
-      
-      {loading && (
-        <div className="spinner">
-          <div className="animate-spin...">Loading...</div>
+
+      {stage === 'upload' && (
+        <>
+          <VideoUploader onVideoSelected={handleVideoSelected} />
+          <VideoUploadTips />
+        </>
+      )}
+
+      {(stage === 'preview' || stage === 'analyzing' || stage === 'results') && (
+        <>
+          <VideoPreview
+            videoUrl={videoUrl}
+            videoFile={videoFile}
+            exerciseType={exerciseType}
+            onAnalyze={handleAnalyze}
+            onUploadAnother={handleUploadAnother}
+            isAnalyzing={stage === 'analyzing'}
+            results={results}
+          />
+          {stage === 'results' && results && (
+            <FormResults results={results} exerciseType={exerciseType} />
+          )}
+        </>
+      )}
+
+      {error && (
+        <div className="mt-4 p-4 bg-[#E26D5C] bg-opacity-10 border-2 border-[#E26D5C] rounded-lg max-w-2xl mx-auto">
+          <p className="text-[#E26D5C] text-sm font-semibold">{error}</p>
         </div>
       )}
-      
-      {error && <div className="error">{error}</div>}
-      
-      {!results && <VideoUploadTips />}
     </div>
   );
 }
