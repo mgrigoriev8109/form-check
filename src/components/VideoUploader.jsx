@@ -108,14 +108,15 @@ const VideoUploader = ({ onAnalyze }) => {
   };
 
   const handleAnalyze = () => {
-    debugger;
     if (selectedFile && onAnalyze) {
       onAnalyze(selectedFile, exerciseType);
     }
   };
 
-  function SelectExercise() {
-    return (
+  return (
+    <div className="max-w-2xl mx-auto">
+      {/* Exercise Selection */}
+      {!selectedFile && (
         <div className="mb-6">
           <label className="block text-sm font-bold text-[#303030] mb-3 uppercase tracking-wide">
             Select Exercise Type
@@ -143,11 +144,11 @@ const VideoUploader = ({ onAnalyze }) => {
             </button>
           </div>
         </div>
-    )
-  }
+      )}
 
-  function UploadVideo() {
-    return (
+      {/* Video Upload or Preview */}
+      {!selectedFile ? (
+        // Upload Area
         <div
           onDragEnter={handleDrag}
           onDragLeave={handleDrag}
@@ -197,11 +198,8 @@ const VideoUploader = ({ onAnalyze }) => {
             Choose File
           </button>
         </div>
-    )
-  }
-
-  function PreviewVideo() {
-    return (
+      ) : (
+        // Video Preview
         <div className="space-y-4">
           <div className="relative rounded-lg overflow-hidden bg-[#303030] shadow-xl border-4 border-[#DFB960]">
             <video
@@ -236,29 +234,13 @@ const VideoUploader = ({ onAnalyze }) => {
             Analyze Form
           </button>
         </div>
-    )
-  }
+      )}
 
-
-  function RenderError() {
-    return (
+      {/* Error Message */}
+      {error && (
         <div className="mt-4 p-4 bg-[#E26D5C] bg-opacity-10 border-2 border-[#E26D5C] rounded-lg">
           <p className="text-[#E26D5C] text-sm font-semibold">{error}</p>
         </div>
-    )
-  }
-
-  return (
-    <div className="max-w-2xl mx-auto">
-      {!selectedFile && ( <SelectExercise />)}
-
-      {!selectedFile ? ( <UploadVideo />
-      ) : (
-        <PreviewVideo />
-      )}
-
-      {error && (
-        <RenderError />
       )}
     </div>
   );

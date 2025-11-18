@@ -1,5 +1,7 @@
 import { useState } from 'react'
 import VideoUploader from './components/VideoUploader'
+import AppHeader from './components/AppHeader'
+import VideoUploadTips from './components/VideoUploadTips'
 
 function App() {
   const [loading, setLoading] = useState(false);
@@ -11,10 +13,8 @@ function App() {
     setError(null);
     
     try {
-      // 1. Extract frames from video
       const frames = await extractFrames(videoFile);
       
-      // 2. Call your Lambda/API
       const response = await fetch('your-api-endpoint', {
         method: 'POST',
         body: JSON.stringify({ frames, exerciseType })
@@ -30,7 +30,7 @@ function App() {
     }
   };
 
-  function RenderUploadTips() {
+  function VideoUploadTips() {
     return (
       <div className="mt-8 bg-[#DFB960] bg-opacity-15 rounded-lg p-5 border-l-4 border-[#DFB960]">
         <h3 className="font-black text-[#303030] mb-3 uppercase tracking-wide text-sm">
@@ -58,23 +58,9 @@ function App() {
     )
   }
 
-  function Header() {
-    return (
-      <div className="text-center mb-8">
-        <h1 className="text-5xl font-black text-[#303030] mb-2 tracking-tight">
-          FORM CHECK
-        </h1>
-        <p className="text-[#303030] text-lg opacity-80">
-          Upload your workout video for AI-powered form analysis
-        </p>
-      </div>
-    )
-  }
-
-
   return (
     <div>
-      <Header />
+      <AppHeader />
       <VideoUploader onAnalyze={handleAnalyze} />
       
       {loading && (
@@ -85,7 +71,7 @@ function App() {
       
       {error && <div className="error">{error}</div>}
       
-      {!results && <RenderUploadTips />}
+      {!results && <VideoUploadTips />}
     </div>
   );
 }
