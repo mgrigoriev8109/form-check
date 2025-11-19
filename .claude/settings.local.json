@@ -1,0 +1,19 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run dev:*)",
+      "Bash(mkdir:*)",
+      "Bash(touch:*)",
+      "Bash(python3.11:*)",
+      "Bash(python3:*)",
+      "Bash(source:*)",
+      "Bash(pip install:*)",
+      "Bash(pip freeze:*)",
+      "Bash(requirements.txt)",
+      "Bash(uvicorn app.main:app:*)",
+      "Bash(curl:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
