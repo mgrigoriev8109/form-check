@@ -4,6 +4,7 @@ import VideoPreview from './components/VideoPreview'
 import FormResults from './components/FormResults'
 import AppHeader from './components/AppHeader'
 import VideoUploadTips from './components/VideoUploadTips'
+import { extractFrames } from './utils/videoProcessing'
 
 function App() {
   // Stage management: 'upload' | 'preview' | 'analyzing' | 'results'
@@ -31,9 +32,9 @@ function App() {
     setError(null);
 
     try {
-      // we probably want to stick this function into a utility
       const frames = await extractFrames(videoFile);
 
+      // if fetch isn't sufficient we can consider using axios
       const response = await fetch('your-api-endpoint', {
         method: 'POST',
         body: JSON.stringify({ frames, exerciseType })
