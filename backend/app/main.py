@@ -1,11 +1,15 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from app.routers import form_analysis
 
 app = FastAPI(
     title="Form Check API",
     description="Backend service for analyzing weightlifting form using Claude AI",
     version="0.1.0"
 )
+
+# Include routers
+app.include_router(form_analysis.router)
 
 # Configure CORS for React frontend
 app.add_middleware(

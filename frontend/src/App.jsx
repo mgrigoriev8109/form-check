@@ -35,7 +35,7 @@ function App() {
       const frames = await extractFrames(videoFile);
 
       // if fetch isn't sufficient we can consider using axios
-      const response = await fetch('your-api-endpoint', {
+      const response = await fetch('http://localhost:8000/api/analyze-form', {
         method: 'POST',
         body: JSON.stringify({ frames, exerciseType })
       });
