@@ -27,7 +27,7 @@ async def analyze_form(request: FormAnalysisRequest):
         # Get Claude service instance
         claude_service = get_claude_service()
 
-        # Perform analysis
+        # Perform analysis (async)
         analysis = await claude_service.analyze_form(
             frames=request.frames,
             exercise_type=request.exerciseType

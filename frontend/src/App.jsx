@@ -37,10 +37,14 @@ function App() {
       // if fetch isn't sufficient we can consider using axios
       const response = await fetch('http://localhost:8000/api/analyze-form', {
         method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
         body: JSON.stringify({ frames, exerciseType })
       });
 
       const data = await response.json();
+      debugger;
       setResults(data);
       setStage('results');
 

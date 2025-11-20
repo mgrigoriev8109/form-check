@@ -14,7 +14,7 @@ class ClaudeService:
         api_key = os.getenv("ANTHROPIC_API_KEY")
         if not api_key:
             raise ValueError("ANTHROPIC_API_KEY environment variable is not set")
-        self.client = anthropic.Anthropic(api_key=api_key)
+        self.client = anthropic.AsyncAnthropic(api_key=api_key)
 
     async def analyze_form(self, frames: List[str], exercise_type: str) -> str:
         """
@@ -54,8 +54,8 @@ Be encouraging but honest. Focus on actionable feedback."""
                 },
             })
 
-        # Make the API call
-        message = self.client.messages.create(
+        # Make the API call (async)
+        message = await self.client.messages.create(
             model="claude-3-5-sonnet-20241022",
             max_tokens=1024,
             messages=[
