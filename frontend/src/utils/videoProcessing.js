@@ -34,7 +34,9 @@ export async function extractFrames(videoFile, frameCount = 8) {
             context.drawImage(video, 0, 0, canvas.width, canvas.height);
 
             // Convert canvas to base64 image
-            const base64Image = canvas.toDataURL('image/jpeg', 0.8);
+            const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
+            // Remove the data URL prefix (data:image/jpeg;base64,) to get pure base64
+            const base64Image = dataUrl.split(',')[1];
             frames.push(base64Image);
 
             // Remove this event listener to avoid duplicates
