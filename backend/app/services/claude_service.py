@@ -29,16 +29,18 @@ class ClaudeService:
         """
 
         # Construct the prompt for form analysis
-        prompt = f"""You are an expert personal trainer and movement coach. Analyze the {exercise_type} form in these video frames.
+        prompt = f"""You are an expert personal trainer analyzing {exercise_type} form from video frames.
 
-Please provide:
-1. Overall form assessment (good, needs improvement, or poor)
-2. Specific observations about key movement points (setup, execution, completion)
-3. Safety concerns if any
-4. Concrete recommendations for improvement
-5. Positive aspects of the form
+Provide your analysis as valid JSON with this structure:
+{{
+  "overallAssessment": "good" | "needs improvement" | "poor",
+  "keyObservations": ["observation 1", "observation 2", "observation 3"],
+  "safetyConcerns": ["concern 1", "concern 2"] or [],
+  "recommendations": ["recommendation 1", "recommendation 2"],
+}}
 
-Be encouraging but honest. Focus on actionable feedback."""
+Be concise - limit each point to 1-2 sentences. Focus on actionable feedback."""
+
 
         # Build the message content with images
         content = [{"type": "text", "text": prompt}]
