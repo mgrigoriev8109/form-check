@@ -34,11 +34,10 @@ class ClaudeService:
 Please provide:
 1. Overall form assessment (good, needs improvement, or poor)
 2. Specific observations about key movement points (setup, execution, completion)
-3. Safety concerns if any
+3. Injury risk specifically related to exercise movement
 4. Concrete recommendations for improvement
-5. Positive aspects of the form
 
-Be encouraging but honest. Focus on actionable feedback."""
+Be objective and honest. Focus on actionable feedback."""
 
         # Build the message content with images
         content = [{"type": "text", "text": prompt}]
