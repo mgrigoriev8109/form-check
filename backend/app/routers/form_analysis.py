@@ -1,8 +1,7 @@
 from fastapi import APIRouter, HTTPException
-from app.models.schemas import FormAnalysisRequest, FormAnalysisResponse, FormAnalysisData
+from app.models.schemas import FormAnalysisRequest, FormAnalysisResponse
 from app.services.claude_service import get_claude_service
 from datetime import datetime
-from pydantic import ValidationError
 
 router = APIRouter(
     prefix="/api",
@@ -28,33 +27,24 @@ async def analyze_form(request: FormAnalysisRequest):
         # Get Claude service instance
         claude_service = get_claude_service()
 
-        # Perform analysis (async) - returns structured dict
-        analysis_dict = await claude_service.analyze_form(
+        # Perform analysis (async)
+        analysis = await claude_service.analyze_form(
             frames=request.frames,
             exercise_type=request.exerciseType
         )
 
-        # Validate and convert dict to FormAnalysisData
-        analysis_data = FormAnalysisData(**analysis_dict)
-
-        # Return response with structured data
+        # Return response
         return FormAnalysisResponse(
-            analysis=analysis_data,
+            analysis=analysis,
             timestamp=datetime.utcnow(),
             exerciseType=request.exerciseType
         )
 
     except ValueError as e:
-        # API key not configured or JSON parsing failed
+        # API key not configured
         raise HTTPException(
             status_code=500,
             detail=f"Service configuration error: {str(e)}"
-        )
-    except ValidationError as e:
-        # Claude response doesn't match expected schema
-        raise HTTPException(
-            status_code=500,
-            detail=f"Invalid response format from AI service: {str(e)}"
         )
     except Exception as e:
         # Other errors during analysis
