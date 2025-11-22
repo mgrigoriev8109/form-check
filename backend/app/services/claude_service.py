@@ -1,10 +1,16 @@
 import os
-from typing import List
+from typing import Dict, Any
 import anthropic
 from dotenv import load_dotenv
+from app.services.exercise_prompts import get_exercise_prompt, format_biomechanics_data
+import time
+import logging
 
 # Load environment variables
 load_dotenv()
+
+# Configure logging
+logger = logging.getLogger(__name__)
 
 
 class ClaudeService:
@@ -16,54 +22,67 @@ class ClaudeService:
             raise ValueError("ANTHROPIC_API_KEY environment variable is not set")
         self.client = anthropic.AsyncAnthropic(api_key=api_key)
 
-    async def analyze_form(self, frames: List[str], exercise_type: str) -> str:
+    async def analyze_form(self, biomechanics_data: Dict[str, Any]) -> str:
         """
-        Analyze workout form using Claude's vision capabilities
+        Analyze workout form using biomechanical keypoint data
 
         Args:
-            frames: List of base64 encoded image frames from the video
-            exercise_type: Type of exercise being performed
+            biomechanics_data: Dictionary containing:
+                - exerciseType: Type of exercise
+                - keyPositions: Key positions in movement
+                - temporalAnalysis: Temporal movement patterns
+                - riskFlags: Automatically detected risk flags
+                - allFramesData: Frame-by-frame metrics
 
         Returns:
-            Detailed form analysis from Claude
+            Detailed form analysis from Claude focused on injury prevention
         """
+        start_time = time.time()
 
-        # Construct the prompt for form analysis
-        prompt = f"""You are an expert personal trainer and movement coach. Analyze the {exercise_type} form in these video frames.
+        exercise_type = biomechanics_data.get('exerciseType', 'Squat')
 
-Please provide:
-1. Overall form assessment (good, needs improvement, or poor)
-2. Specific observations about key movement points (setup, execution, completion)
-3. Injury risk specifically related to exercise movement
-4. Concrete recommendations for improvement
+        # Get exercise-specific prompt
+        exercise_prompt = get_exercise_prompt(exercise_type)
 
-Be objective and honest. Focus on actionable feedback."""
+        # Format biomechanics data into readable text
+        formatted_data = format_biomechanics_data(biomechanics_data)
 
-        # Build the message content with images
-        content = [{"type": "text", "text": prompt}]
+        prep_time = time.time() - start_time
+        logger.info(f"[TIMING] Prompt preparation: {prep_time:.3f}s")
+        logger.info(f"[TIMING] System prompt: {len(exercise_prompt)} chars, Data: {len(formatted_data)} chars")
 
-        # Add frames as images (Claude supports multiple images)
-        for frame in frames:
-            content.append({
-                "type": "image",
-                "source": {
-                    "type": "base64",
-                    "media_type": "image/jpeg",
-                    "data": frame,
-                },
-            })
-
-        # Make the API call (async)
+        # Make the API call (async) with prompt caching
+        # The exercise prompt is cached (static), the data changes each request
+        api_start = time.time()
         message = await self.client.messages.create(
-            model="claude-sonnet-4-5-20250929",
-            max_tokens=1024,
+            model="claude-3-5-haiku-20241022",
+            max_tokens=450,  # Optimized for concise analysis
+            system=[
+                {
+                    "type": "text",
+                    "text": exercise_prompt,
+                    "cache_control": {"type": "ephemeral"}
+                }
+            ],
             messages=[
                 {
                     "role": "user",
-                    "content": content,
+                    "content": formatted_data,
                 }
             ],
         )
+        api_time = time.time() - api_start
+
+        total_time = time.time() - start_time
+
+        # Log cache performance
+        usage = message.usage
+        cache_read = getattr(usage, 'cache_read_input_tokens', 0)
+        cache_creation = getattr(usage, 'cache_creation_input_tokens', 0)
+
+        logger.info(f"[TIMING] Claude API call: {api_time:.3f}s")
+        logger.info(f"[TIMING] Total backend analysis: {total_time:.3f}s")
+        logger.info(f"[TOKENS] Input: {usage.input_tokens} | Output: {usage.output_tokens} | Cache read: {cache_read} | Cache created: {cache_creation}")
 
         # Extract the text response
         return message.content[0].text

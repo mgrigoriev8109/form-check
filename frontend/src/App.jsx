@@ -4,7 +4,7 @@ import VideoPreview from './components/VideoPreview'
 import FormResults from './components/FormResults'
 import AppHeader from './components/AppHeader'
 import VideoUploadTips from './components/VideoUploadTips'
-import { extractFrames } from './utils/videoProcessing'
+import { analyzeSquatVideo } from './utils/poseDetection'
 
 function App() {
   // Stage management: 'upload' | 'preview' | 'analyzing' | 'results'
@@ -31,20 +31,41 @@ function App() {
     setStage('analyzing');
     setError(null);
 
-    try {
-      const frames = await extractFrames(videoFile);
+    const totalStart = performance.now();
 
-      // if fetch isn't sufficient we can consider using axios
+    try {
+      // Extract pose keypoints and biomechanical metrics from video
+      const poseStart = performance.now();
+      const biomechanicsData = await analyzeSquatVideo(videoFile, 8, (progress) => {
+        // Optional: could add progress indicator to UI later
+        console.log(`Processing: ${Math.round(progress * 100)}%`);
+      });
+      const poseTime = ((performance.now() - poseStart) / 1000).toFixed(2);
+      console.log(`[TIMING] Frontend pose detection: ${poseTime}s`);
+
+      // Send keypoint data to backend for LLM analysis
+      const apiStart = performance.now();
       const response = await fetch('http://localhost:8000/api/analyze-form', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ frames, exerciseType })
+        body: JSON.stringify(biomechanicsData)
       });
 
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || 'Analysis failed');
+      }
+
       const data = await response.json();
-      debugger;
+      const apiTime = ((performance.now() - apiStart) / 1000).toFixed(2);
+      const totalTime = ((performance.now() - totalStart) / 1000).toFixed(2);
+
+      console.log(`[TIMING] Backend API call: ${apiTime}s`);
+      console.log(`[TIMING] Total end-to-end: ${totalTime}s`);
+      console.log(`[TIMING] Breakdown: Pose ${poseTime}s (${Math.round(poseTime/totalTime*100)}%) + API ${apiTime}s (${Math.round(apiTime/totalTime*100)}%)`);
+
       setResults(data);
       setStage('results');
 

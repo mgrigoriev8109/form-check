@@ -12,10 +12,10 @@ router = APIRouter(
 @router.post("/analyze-form", response_model=FormAnalysisResponse)
 async def analyze_form(request: FormAnalysisRequest):
     """
-    Analyze workout form from video frames using Claude AI
+    Analyze workout form from biomechanics data using Claude AI
 
     Args:
-        request: FormAnalysisRequest containing frames and exercise type
+        request: FormAnalysisRequest containing biomechanics data from pose detection
 
     Returns:
         FormAnalysisResponse with analysis results
@@ -27,11 +27,11 @@ async def analyze_form(request: FormAnalysisRequest):
         # Get Claude service instance
         claude_service = get_claude_service()
 
+        # Convert Pydantic model to dictionary for analysis
+        biomechanics_data = request.model_dump()
+
         # Perform analysis (async)
-        analysis = await claude_service.analyze_form(
-            frames=request.frames,
-            exercise_type=request.exerciseType
-        )
+        analysis = await claude_service.analyze_form(biomechanics_data)
 
         # Return response
         return FormAnalysisResponse(

@@ -11,7 +11,12 @@
       "Bash(pip freeze:*)",
       "Bash(requirements.txt)",
       "Bash(uvicorn app.main:app:*)",
-      "Bash(curl:*)"
+      "Bash(curl:*)",
+      "Bash(npm install:*)",
+      "Bash(timeout 5 python3:*)",
+      "Bash(pip3 install:*)",
+      "Bash(python:*)",
+      "Bash(cat:*)"
     ],
     "deny": [],
     "ask": []
