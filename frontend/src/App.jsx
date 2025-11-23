@@ -114,7 +114,7 @@ function App() {
             results={results}
           />
           {stage === 'results' && results && (
-            <FormResults results={results} exerciseType={exerciseType} />
+            <FormResults results={results} />
           )}
         </>
       )}
