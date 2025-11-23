@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.routers import form_analysis
+import os
 
 app = FastAPI(
     title="Form Check API",
@@ -8,17 +9,17 @@ app = FastAPI(
     version="0.1.0"
 )
 
-# Include routers
-app.include_router(form_analysis.router)
-
-# Configure CORS for React frontend
+# Configure CORS for React frontend - MUST come before router inclusion
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://localhost:5174"],  # Vite dev server
+    allow_origins=os.getenv("CORS_ORIGINS", "http://localhost:5173,http://localhost:5174").split(","),
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Include routers
+app.include_router(form_analysis.router)
 
 
 @app.get("/")
