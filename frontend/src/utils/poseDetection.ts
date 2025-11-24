@@ -6,7 +6,99 @@
  * To add a new exercise, create a new exercise config object (see EXERCISE_CONFIGS).
  */
 
-import { Pose } from '@mediapipe/pose';
+import { Pose, Results as PoseResults, NormalizedLandmark } from '@mediapipe/pose';
+
+// ============================================================================
+// TYPES
+// ============================================================================
+
+interface Point3D {
+  x: number;
+  y: number;
+  z: number;
+}
+
+interface SquatMetrics {
+  hipAngle: number;
+  kneeAngle: number;
+  ankleAngle: number;
+  torsoLean: number;
+  neckAngle: number;
+  hipHeight: number;
+  shoulderHeight: number;
+  kneeForwardTravel: number;
+}
+
+interface DeadliftMetrics {
+  hipAngle: number;
+  kneeAngle: number;
+  backAngle: number;
+  neckAngle: number;
+  hipHeight: number;
+  shoulderHeight: number;
+  wristHeight: number;
+  barPathDeviation: number;
+}
+
+type ExerciseMetrics = SquatMetrics | DeadliftMetrics;
+
+interface SquatKeyPositions {
+  setup: SquatMetrics & { frame: number };
+  bottomPosition: SquatMetrics & { frame: number };
+  completion: SquatMetrics & { frame: number };
+}
+
+interface DeadliftKeyPositions {
+  setup: DeadliftMetrics & { frame: number };
+  startOfPull: DeadliftMetrics & { frame: number };
+  lockout: DeadliftMetrics & { frame: number };
+  completion: DeadliftMetrics & { frame: number };
+}
+
+type KeyPositions = SquatKeyPositions | DeadliftKeyPositions;
+
+interface SquatTemporalAnalysis {
+  hipRiseRate: number;
+  shoulderRiseRate: number;
+  riseRateRatio: number;
+  maxTorsoLean: number;
+  maxKneeForwardTravel: number;
+  neckExtensionMax: number;
+  minHipAngle: number;
+}
+
+interface DeadliftTemporalAnalysis {
+  avgBarPathDeviation: number;
+  maxBarPathDeviation: number;
+  maxBackAngle: number;
+  backAngleChange: number;
+  hipRiseRate: number;
+  shoulderRiseRate: number;
+  riseRateRatio: number;
+  neckExtensionMax: number;
+}
+
+type TemporalAnalysis = SquatTemporalAnalysis | DeadliftTemporalAnalysis;
+
+interface ExerciseConfig<M extends ExerciseMetrics = ExerciseMetrics, K extends KeyPositions = KeyPositions, T extends TemporalAnalysis = TemporalAnalysis> {
+  name: string;
+  requiredLandmarks: Record<string, number>;
+  visibilityThresholds: Record<string, number>;
+  calculateMetrics: (landmarks: NormalizedLandmark[], landmarkRefs: Record<string, NormalizedLandmark>) => M;
+  identifyKeyPositions: (allFramesMetrics: M[]) => K;
+  calculateTemporalPatterns: (allFramesMetrics: M[], keyPositions: K) => T | null;
+  riskThresholds: Record<string, number>;
+  detectRiskFlags: (temporalAnalysis: T, keyPositions: K, thresholds: Record<string, number>) => string[];
+}
+
+interface AnalysisData {
+  exerciseType: string;
+  frameCount: number;
+  duration: string;
+  keyPositions: KeyPositions;
+  temporalAnalysis: TemporalAnalysis | null;
+  riskFlags: string[];
+}
 
 // ============================================================================
 // CONSTANTS
@@ -50,7 +142,7 @@ const POSE_LANDMARKS = {
   RIGHT_HEEL: 30,
   LEFT_FOOT_INDEX: 31,
   RIGHT_FOOT_INDEX: 32,
-};
+} as const;
 
 /**
  * Default visibility thresholds for landmark detection
@@ -59,7 +151,7 @@ const VISIBILITY_THRESHOLDS = {
   DEFAULT: 0.5,
   RELAXED_KNEE: 0.25,
   RELAXED_ANKLE: 0.1,
-};
+} as const;
 
 // ============================================================================
 // UTILITY FUNCTIONS
@@ -67,12 +159,12 @@ const VISIBILITY_THRESHOLDS = {
 
 /**
  * Calculate angle between three points in degrees
- * @param {Object} point1 - First point {x, y, z}
- * @param {Object} vertex - Vertex point (angle measured here) {x, y, z}
- * @param {Object} point2 - Third point {x, y, z}
- * @returns {number} Angle in degrees
+ * @param point1 - First point {x, y, z}
+ * @param vertex - Vertex point (angle measured here) {x, y, z}
+ * @param point2 - Third point {x, y, z}
+ * @returns Angle in degrees
  */
-function calculateAngle(point1, vertex, point2) {
+function calculateAngle(point1: Point3D, vertex: Point3D, point2: Point3D): number {
   // Vector from vertex to point1
   const v1 = {
     x: point1.x - vertex.x,
@@ -101,11 +193,11 @@ function calculateAngle(point1, vertex, point2) {
 
 /**
  * Calculate angle from vertical (0° = perfectly vertical)
- * @param {Object} point1 - Upper point {x, y, z}
- * @param {Object} point2 - Lower point {x, y, z}
- * @returns {number} Angle from vertical in degrees
+ * @param point1 - Upper point {x, y, z}
+ * @param point2 - Lower point {x, y, z}
+ * @returns Angle from vertical in degrees
  */
-function calculateAngleFromVertical(point1, point2) {
+function calculateAngleFromVertical(point1: Point3D, point2: Point3D): number {
   const dx = point2.x - point1.x;
   const dy = point2.y - point1.y;
 
@@ -118,7 +210,7 @@ function calculateAngleFromVertical(point1, point2) {
  * Calculate vertical height in normalized coordinates (0-1)
  * MediaPipe coords are inverted (0 = top, 1 = bottom)
  */
-function calculateHeight(landmark) {
+function calculateHeight(landmark: NormalizedLandmark): number {
   return 1 - landmark.y;
 }
 
@@ -129,7 +221,7 @@ function calculateHeight(landmark) {
 /**
  * Exercise configuration for SQUAT analysis
  */
-const SQUAT_CONFIG = {
+const SQUAT_CONFIG: ExerciseConfig<SquatMetrics, SquatKeyPositions, SquatTemporalAnalysis> = {
   name: 'Squat',
 
   // Required landmarks for analysis
@@ -149,7 +241,7 @@ const SQUAT_CONFIG = {
   },
 
   // Metrics calculation function
-  calculateMetrics: (_landmarks, landmarkRefs) => {
+  calculateMetrics: (_landmarks: NormalizedLandmark[], landmarkRefs: Record<string, NormalizedLandmark>): SquatMetrics => {
     const { shoulder, hip, knee, ankle, nose, ear } = landmarkRefs;
 
     // Joint angles
@@ -181,7 +273,7 @@ const SQUAT_CONFIG = {
   },
 
   // Identify key positions in the movement
-  identifyKeyPositions: (allFramesMetrics) => {
+  identifyKeyPositions: (allFramesMetrics: SquatMetrics[]): SquatKeyPositions => {
     const setupIdx = 0;
 
     // Bottom position is where hip is lowest
@@ -204,7 +296,7 @@ const SQUAT_CONFIG = {
   },
 
   // Calculate temporal patterns specific to squats
-  calculateTemporalPatterns: (allFramesMetrics, keyPositions) => {
+  calculateTemporalPatterns: (allFramesMetrics: SquatMetrics[], keyPositions: SquatKeyPositions): SquatTemporalAnalysis | null => {
     const bottomIdx = keyPositions.bottomPosition.frame;
     const completionIdx = keyPositions.completion.frame;
 
@@ -246,8 +338,8 @@ const SQUAT_CONFIG = {
     maxKneeForwardTravel: 15,
   },
 
-  detectRiskFlags: (temporalAnalysis, _keyPositions, thresholds) => {
-    const flags = [];
+  detectRiskFlags: (temporalAnalysis: SquatTemporalAnalysis, _keyPositions: SquatKeyPositions, thresholds: Record<string, number>): string[] => {
+    const flags: string[] = [];
 
     if (temporalAnalysis.maxTorsoLean > thresholds.maxTorsoLean) {
       flags.push(`Excessive torso lean detected (${temporalAnalysis.maxTorsoLean}° - threshold: ${thresholds.maxTorsoLean}°)`);
@@ -276,7 +368,7 @@ const SQUAT_CONFIG = {
 /**
  * Exercise configuration for DEADLIFT analysis
  */
-const DEADLIFT_CONFIG = {
+const DEADLIFT_CONFIG: ExerciseConfig<DeadliftMetrics, DeadliftKeyPositions, DeadliftTemporalAnalysis> = {
   name: 'Deadlift',
 
   // Required landmarks for analysis
@@ -296,7 +388,7 @@ const DEADLIFT_CONFIG = {
     wrist: VISIBILITY_THRESHOLDS.RELAXED_ANKLE, // Wrist may be occluded by body
   },
 
-  calculateMetrics: (_landmarks, landmarkRefs) => {
+  calculateMetrics: (_landmarks: NormalizedLandmark[], landmarkRefs: Record<string, NormalizedLandmark>): DeadliftMetrics => {
     const { shoulder, hip, knee, ankle, nose, ear, wrist } = landmarkRefs;
 
     // Joint angles
@@ -329,7 +421,7 @@ const DEADLIFT_CONFIG = {
     };
   },
 
-  identifyKeyPositions: (allFramesMetrics) => {
+  identifyKeyPositions: (allFramesMetrics: DeadliftMetrics[]): DeadliftKeyPositions => {
     const setupIdx = 0;
 
     // Bottom position is where wrist/bar is lowest (start of pull)
@@ -362,7 +454,7 @@ const DEADLIFT_CONFIG = {
     };
   },
 
-  calculateTemporalPatterns: (allFramesMetrics, keyPositions) => {
+  calculateTemporalPatterns: (allFramesMetrics: DeadliftMetrics[], keyPositions: DeadliftKeyPositions): DeadliftTemporalAnalysis | null => {
     const startIdx = keyPositions.startOfPull.frame;
     const lockoutIdx = keyPositions.lockout.frame;
 
@@ -412,8 +504,8 @@ const DEADLIFT_CONFIG = {
     neckExtensionMax: 35, // Looking up too much
   },
 
-  detectRiskFlags: (temporalAnalysis, _keyPositions, thresholds) => {
-    const flags = [];
+  detectRiskFlags: (temporalAnalysis: DeadliftTemporalAnalysis, _keyPositions: DeadliftKeyPositions, thresholds: Record<string, number>): string[] => {
+    const flags: string[] = [];
 
     if (temporalAnalysis.maxBackAngle > thresholds.maxBackAngle) {
       flags.push(`Excessive back angle detected (${temporalAnalysis.maxBackAngle}° - threshold: ${thresholds.maxBackAngle}°)`);
@@ -442,7 +534,7 @@ const DEADLIFT_CONFIG = {
 /**
  * Registry of available exercise configurations
  */
-const EXERCISE_CONFIGS = {
+const EXERCISE_CONFIGS: Record<string, ExerciseConfig> = {
   squat: SQUAT_CONFIG,
   deadlift: DEADLIFT_CONFIG,
 };
@@ -453,18 +545,18 @@ const EXERCISE_CONFIGS = {
 
 /**
  * Extract biomechanical metrics from pose landmarks using exercise-specific config
- * @param {Array} landmarks - MediaPipe pose landmarks
- * @param {Object} exerciseConfig - Exercise configuration object
- * @returns {Object|null} Biomechanical metrics or null if insufficient visibility
+ * @param landmarks - MediaPipe pose landmarks
+ * @param exerciseConfig - Exercise configuration object
+ * @returns Biomechanical metrics or null if insufficient visibility
  */
-function calculateExerciseMetrics(landmarks, exerciseConfig) {
+function calculateExerciseMetrics(landmarks: NormalizedLandmark[], exerciseConfig: ExerciseConfig): ExerciseMetrics | null {
   if (!landmarks || landmarks.length === 0) {
     return null;
   }
 
   // Get landmark references
-  const landmarkRefs = {};
-  const landmarkNames = [];
+  const landmarkRefs: Record<string, NormalizedLandmark> = {};
+  const landmarkNames: string[] = [];
 
   for (const [name, index] of Object.entries(exerciseConfig.requiredLandmarks)) {
     landmarkRefs[name] = landmarks[index];
@@ -478,7 +570,7 @@ function calculateExerciseMetrics(landmarks, exerciseConfig) {
     if (!lm) return `${name}: missing`;
 
     const threshold = exerciseConfig.visibilityThresholds[name] || VISIBILITY_THRESHOLDS.DEFAULT;
-    if (lm.visibility < threshold) {
+    if (lm.visibility && lm.visibility < threshold) {
       return `${name}: low visibility (${lm.visibility.toFixed(2)})`;
     }
     return null;
@@ -490,7 +582,7 @@ function calculateExerciseMetrics(landmarks, exerciseConfig) {
       if (!lm) return false;
       const name = landmarkNames[idx];
       const threshold = exerciseConfig.visibilityThresholds[name] || VISIBILITY_THRESHOLDS.DEFAULT;
-      return lm.visibility >= threshold;
+      return lm.visibility ? lm.visibility >= threshold : false;
     });
 
     if (!hasMinimumVisibility) {
@@ -504,34 +596,34 @@ function calculateExerciseMetrics(landmarks, exerciseConfig) {
 
 /**
  * Analyze temporal patterns across the movement
- * @param {Array} allFramesMetrics - Metrics from all frames
- * @param {Object} keyPositions - Identified key positions
- * @param {Object} exerciseConfig - Exercise configuration
- * @returns {Object|null} Temporal analysis
+ * @param allFramesMetrics - Metrics from all frames
+ * @param keyPositions - Identified key positions
+ * @param exerciseConfig - Exercise configuration
+ * @returns Temporal analysis
  */
-function analyzeTemporalPatterns(allFramesMetrics, keyPositions, exerciseConfig) {
+function analyzeTemporalPatterns(allFramesMetrics: ExerciseMetrics[], keyPositions: KeyPositions, exerciseConfig: ExerciseConfig): TemporalAnalysis | null {
   if (!allFramesMetrics || allFramesMetrics.length < 2 || !keyPositions) {
     return null;
   }
 
-  return exerciseConfig.calculateTemporalPatterns(allFramesMetrics, keyPositions);
+  return exerciseConfig.calculateTemporalPatterns(allFramesMetrics as any, keyPositions as any);
 }
 
 /**
  * Detect exercise-specific risk flags
- * @param {Object} temporalAnalysis - Temporal patterns
- * @param {Object} keyPositions - Key positions
- * @param {Object} exerciseConfig - Exercise configuration
- * @returns {Array} Risk flags
+ * @param temporalAnalysis - Temporal patterns
+ * @param keyPositions - Key positions
+ * @param exerciseConfig - Exercise configuration
+ * @returns Risk flags
  */
-function detectExerciseRiskFlags(temporalAnalysis, keyPositions, exerciseConfig) {
+function detectExerciseRiskFlags(temporalAnalysis: TemporalAnalysis | null, keyPositions: KeyPositions, exerciseConfig: ExerciseConfig): string[] {
   if (!temporalAnalysis || !keyPositions) {
     return [];
   }
 
   return exerciseConfig.detectRiskFlags(
-    temporalAnalysis,
-    keyPositions,
+    temporalAnalysis as any,
+    keyPositions as any,
     exerciseConfig.riskThresholds
   );
 }
@@ -542,13 +634,18 @@ function detectExerciseRiskFlags(temporalAnalysis, keyPositions, exerciseConfig)
 
 /**
  * Process video frames and extract biomechanics data for any supported exercise
- * @param {File} videoFile - Video file to analyze
- * @param {string} exerciseType - Type of exercise ('squat', 'deadlift')
- * @param {number} frameCount - Number of frames to extract (default: 8)
- * @param {Function} onProgress - Progress callback
- * @returns {Promise<Object>} Structured biomechanics data
+ * @param videoFile - Video file to analyze
+ * @param exerciseType - Type of exercise ('squat', 'deadlift')
+ * @param frameCount - Number of frames to extract (default: 8)
+ * @param onProgress - Progress callback
+ * @returns Structured biomechanics data
  */
-export async function analyzeExerciseVideo(videoFile, exerciseType = 'squat', frameCount = 8, onProgress = null) {
+export async function analyzeExerciseVideo(
+  videoFile: File,
+  exerciseType: string = 'squat',
+  frameCount: number = 8,
+  onProgress: ((progress: number) => void) | null = null
+): Promise<AnalysisData> {
   // Get exercise configuration
   const exerciseConfig = EXERCISE_CONFIGS[exerciseType.toLowerCase()];
 
@@ -563,6 +660,11 @@ export async function analyzeExerciseVideo(videoFile, exerciseType = 'squat', fr
       const canvas = document.createElement('canvas');
       const context = canvas.getContext('2d');
 
+      if (!context) {
+        reject(new Error('Failed to get canvas 2D context'));
+        return;
+      }
+
       const videoUrl = URL.createObjectURL(videoFile);
       video.src = videoUrl;
       video.preload = 'metadata';
@@ -574,7 +676,7 @@ export async function analyzeExerciseVideo(videoFile, exerciseType = 'squat', fr
 
         // Step 2: Initialize MediaPipe Pose
         const pose = new Pose({
-          locateFile: (file) => {
+          locateFile: (file: string) => {
             return `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${file}`;
           },
         });
@@ -589,9 +691,9 @@ export async function analyzeExerciseVideo(videoFile, exerciseType = 'squat', fr
         });
 
         // Store results from pose detection
-        const allFramesMetrics = [];
+        const allFramesMetrics: ExerciseMetrics[] = [];
 
-        pose.onResults((results) => {
+        pose.onResults((results: PoseResults) => {
           if (results.poseLandmarks) {
             const metrics = calculateExerciseMetrics(results.poseLandmarks, exerciseConfig);
 
@@ -603,7 +705,7 @@ export async function analyzeExerciseVideo(videoFile, exerciseType = 'squat', fr
 
         try {
           await pose.initialize();
-        } catch (initError) {
+        } catch (initError: any) {
           URL.revokeObjectURL(videoUrl);
           reject(new Error(`Failed to initialize pose detection: ${initError.message}`));
           return;
@@ -613,7 +715,7 @@ export async function analyzeExerciseVideo(videoFile, exerciseType = 'squat', fr
         for (let i = 0; i < frameCount; i++) {
           const timePoint = (duration * i) / (frameCount - 1);
 
-          await new Promise((resolveFrame) => {
+          await new Promise<void>((resolveFrame) => {
             video.currentTime = timePoint;
             video.addEventListener('seeked', async function onSeeked() {
               context.drawImage(video, 0, 0, canvas.width, canvas.height);
@@ -642,12 +744,12 @@ export async function analyzeExerciseVideo(videoFile, exerciseType = 'squat', fr
           return;
         }
 
-        const keyPositions = exerciseConfig.identifyKeyPositions(allFramesMetrics);
+        const keyPositions = exerciseConfig.identifyKeyPositions(allFramesMetrics as any);
         const temporalAnalysis = analyzeTemporalPatterns(allFramesMetrics, keyPositions, exerciseConfig);
         const riskFlags = detectExerciseRiskFlags(temporalAnalysis, keyPositions, exerciseConfig);
 
         // Step 5: Structure data for backend
-        const analysisData = {
+        const analysisData: AnalysisData = {
           exerciseType: exerciseConfig.name,
           frameCount: allFramesMetrics.length,
           duration: `approximately ${Math.round(duration)} seconds`,
@@ -660,9 +762,9 @@ export async function analyzeExerciseVideo(videoFile, exerciseType = 'squat', fr
         resolve(analysisData);
       });
 
-      video.addEventListener('error', (e) => {
+      video.addEventListener('error', (e: Event) => {
         URL.revokeObjectURL(videoUrl);
-        reject(new Error(`Failed to load video: ${e.message}`));
+        reject(new Error(`Failed to load video: ${(e as ErrorEvent).message}`));
       });
 
     } catch (error) {
@@ -675,31 +777,31 @@ export async function analyzeExerciseVideo(videoFile, exerciseType = 'squat', fr
  * Legacy function name for backwards compatibility
  * @deprecated Use analyzeExerciseVideo instead
  */
-export async function analyzeSquatVideo(videoFile, frameCount = 8, onProgress = null) {
+export async function analyzeSquatVideo(videoFile: File, frameCount: number = 8, onProgress: ((progress: number) => void) | null = null): Promise<AnalysisData> {
   return analyzeExerciseVideo(videoFile, 'squat', frameCount, onProgress);
 }
 
 /**
  * Validate that pose detection is available
- * @returns {boolean} True if pose detection libraries are loaded
+ * @returns True if pose detection libraries are loaded
  */
-export function isPoseDetectionAvailable() {
+export function isPoseDetectionAvailable(): boolean {
   return typeof Pose !== 'undefined';
 }
 
 /**
  * Get list of supported exercise types
- * @returns {Array<string>} List of supported exercise types
+ * @returns List of supported exercise types
  */
-export function getSupportedExercises() {
+export function getSupportedExercises(): string[] {
   return Object.keys(EXERCISE_CONFIGS);
 }
 
 /**
  * Get configuration for a specific exercise
- * @param {string} exerciseType - Exercise type
- * @returns {Object|null} Exercise configuration or null if not found
+ * @param exerciseType - Exercise type
+ * @returns Exercise configuration or null if not found
  */
-export function getExerciseConfig(exerciseType) {
+export function getExerciseConfig(exerciseType: string): ExerciseConfig | null {
   return EXERCISE_CONFIGS[exerciseType.toLowerCase()] || null;
 }

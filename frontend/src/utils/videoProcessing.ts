@@ -1,15 +1,20 @@
 /**
  * Extracts evenly distributed frames from a video file and converts them to base64 images
- * @param {File} videoFile - The video file to extract frames from
- * @param {number} frameCount - Number of frames to extract (default: 8)
- * @returns {Promise<string[]>} Array of base64-encoded image strings
+ * @param videoFile - The video file to extract frames from
+ * @param frameCount - Number of frames to extract (default: 8)
+ * @returns Array of base64-encoded image strings
  */
-export async function extractFrames(videoFile, frameCount = 8) {
+export async function extractFrames(videoFile: File, frameCount: number = 8): Promise<string[]> {
   return new Promise((resolve, reject) => {
     const video = document.createElement('video');
     const canvas = document.createElement('canvas');
     const context = canvas.getContext('2d');
-    const frames = [];
+    const frames: string[] = [];
+
+    if (!context) {
+      reject(new Error('Failed to get canvas 2D context'));
+      return;
+    }
 
     // Create object URL for the video file
     const videoUrl = URL.createObjectURL(videoFile);
@@ -25,7 +30,7 @@ export async function extractFrames(videoFile, frameCount = 8) {
       canvas.height = video.videoHeight;
 
       // Function to capture a frame at a specific time
-      const captureFrame = (timePoint) => {
+      const captureFrame = (timePoint: number): Promise<void> => {
         return new Promise((resolveFrame) => {
           video.currentTime = timePoint;
 

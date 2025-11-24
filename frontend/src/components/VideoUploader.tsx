@@ -1,16 +1,20 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, ChangeEvent, DragEvent } from 'react';
 
-const VideoUploader = ({ onVideoSelected }) => {
+interface VideoUploaderProps {
+  onVideoSelected: (file: File, exerciseType: string) => void;
+}
+
+const VideoUploader = ({ onVideoSelected }: VideoUploaderProps) => {
   const [dragActive, setDragActive] = useState(false);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string | null>(null);
   const [exerciseType, setExerciseType] = useState('squat');
-  const fileInputRef = useRef(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const MAX_FILE_SIZE = 100 * 1024 * 1024; // 100MB
   const MAX_DURATION = 30; // 30 seconds
   const ALLOWED_FORMATS = ['video/mp4', 'video/quicktime', 'video/x-m4v'];
 
-  const validateVideo = (file) => {
+  const validateVideo = (file: File): boolean => {
     if (!ALLOWED_FORMATS.includes(file.type)) {
       setError('Please upload a .mp4 or .mov file');
       return false;
@@ -24,7 +28,7 @@ const VideoUploader = ({ onVideoSelected }) => {
     return true;
   };
 
-  const checkVideoDuration = (videoElement) => {
+  const checkVideoDuration = (videoElement: HTMLVideoElement): Promise<boolean> => {
     return new Promise((resolve, reject) => {
       videoElement.onloadedmetadata = () => {
         if (videoElement.duration > MAX_DURATION) {
@@ -36,7 +40,7 @@ const VideoUploader = ({ onVideoSelected }) => {
     });
   };
 
-  const handleFile = async (file) => {
+  const handleFile = async (file: File) => {
     setError(null);
 
     if (!validateVideo(file)) {
@@ -52,19 +56,19 @@ const VideoUploader = ({ onVideoSelected }) => {
       // Pass file and exercise type back to App
       onVideoSelected(file, exerciseType);
     } catch (err) {
-      setError(err.message);
+      setError((err as Error).message);
       URL.revokeObjectURL(url);
     }
   };
 
-  const handleFileInput = (e) => {
+  const handleFileInput = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       handleFile(file);
     }
   };
 
-  const handleDrag = (e) => {
+  const handleDrag = (e: DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     e.stopPropagation();
     if (e.type === "dragenter" || e.type === "dragover") {
@@ -74,7 +78,7 @@ const VideoUploader = ({ onVideoSelected }) => {
     }
   };
 
-  const handleDrop = (e) => {
+  const handleDrop = (e: DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     e.stopPropagation();
     setDragActive(false);

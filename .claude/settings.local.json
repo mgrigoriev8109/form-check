@@ -16,7 +16,8 @@
       "Bash(timeout 5 python3:*)",
       "Bash(pip3 install:*)",
       "Bash(python:*)",
-      "Bash(cat:*)"
+      "Bash(cat:*)",
+      "Bash(npm run build:*)"
     ],
     "deny": [],
     "ask": []

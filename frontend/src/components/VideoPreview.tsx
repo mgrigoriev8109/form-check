@@ -1,5 +1,15 @@
 import { useRef } from 'react';
 
+interface VideoPreviewProps {
+  videoUrl: string;
+  videoFile: File;
+  exerciseType: string;
+  onAnalyze: () => void;
+  onUploadAnother: () => void;
+  isAnalyzing: boolean;
+  results: any; // Will be typed more specifically once we see the results structure
+}
+
 const VideoPreview = ({
   videoUrl,
   videoFile,
@@ -8,8 +18,8 @@ const VideoPreview = ({
   onUploadAnother,
   isAnalyzing,
   results
-}) => {
-  const videoRef = useRef(null);
+}: VideoPreviewProps) => {
+  const videoRef = useRef<HTMLVideoElement>(null);
 
   return (
     <div className="max-w-3xl mx-auto space-y-6">

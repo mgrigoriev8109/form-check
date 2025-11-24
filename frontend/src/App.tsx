@@ -6,20 +6,26 @@ import AppHeader from './components/AppHeader'
 import VideoUploadTips from './components/VideoUploadTips'
 import { analyzeExerciseVideo } from './utils/poseDetection'
 
+type Stage = 'upload' | 'preview' | 'analyzing' | 'results';
+
+interface AnalysisResults {
+  analysis: string;
+}
+
 function App() {
   // Stage management: 'upload' | 'preview' | 'analyzing' | 'results'
-  const [stage, setStage] = useState('upload');
+  const [stage, setStage] = useState<Stage>('upload');
 
   // Video state
-  const [videoFile, setVideoFile] = useState(null);
-  const [videoUrl, setVideoUrl] = useState(null);
-  const [exerciseType, setExerciseType] = useState(null);
+  const [videoFile, setVideoFile] = useState<File | null>(null);
+  const [videoUrl, setVideoUrl] = useState<string | null>(null);
+  const [exerciseType, setExerciseType] = useState<string | null>(null);
 
   // Analysis state
-  const [results, setResults] = useState(null);
-  const [error, setError] = useState(null);
+  const [results, setResults] = useState<AnalysisResults | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleVideoSelected = (file, exercise) => {
+  const handleVideoSelected = (file: File, exercise: string) => {
     const url = URL.createObjectURL(file);
     setVideoFile(file);
     setVideoUrl(url);
@@ -28,6 +34,11 @@ function App() {
   };
 
   const handleAnalyze = async () => {
+    if (!videoFile || !exerciseType) {
+      setError('Video file and exercise type are required');
+      return;
+    }
+
     setStage('analyzing');
     setError(null);
 
@@ -49,12 +60,12 @@ function App() {
         throw new Error(errorData.detail || 'Analysis failed');
       }
 
-      const data = await response.json();
+      const data: AnalysisResults = await response.json();
       setResults(data);
       setStage('results');
 
     } catch (err) {
-      setError(err.message);
+      setError((err as Error).message);
       setStage('preview'); // Return to preview on error
     }
   };
@@ -87,7 +98,7 @@ function App() {
           </>
         )}
 
-        {(stage === 'preview' || stage === 'analyzing' || stage === 'results') && (
+        {(stage === 'preview' || stage === 'analyzing' || stage === 'results') && videoFile && videoUrl && exerciseType && (
           <>
             <VideoPreview
               videoUrl={videoUrl}

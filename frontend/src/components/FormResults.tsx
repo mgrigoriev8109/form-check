@@ -1,4 +1,10 @@
-const FormResults = ({ results }) => {
+interface FormResultsProps {
+  results: {
+    analysis: string;
+  };
+}
+
+const FormResults = ({ results }: FormResultsProps) => {
 
   return (
     <div className="max-w-3xl mx-auto mt-8">
