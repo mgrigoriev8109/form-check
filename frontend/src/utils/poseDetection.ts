@@ -7,98 +7,20 @@
  */
 
 import { Pose, Results as PoseResults, NormalizedLandmark } from '@mediapipe/pose';
-
-// ============================================================================
-// TYPES
-// ============================================================================
-
-interface Point3D {
-  x: number;
-  y: number;
-  z: number;
-}
-
-interface SquatMetrics {
-  hipAngle: number;
-  kneeAngle: number;
-  ankleAngle: number;
-  torsoLean: number;
-  neckAngle: number;
-  hipHeight: number;
-  shoulderHeight: number;
-  kneeForwardTravel: number;
-}
-
-interface DeadliftMetrics {
-  hipAngle: number;
-  kneeAngle: number;
-  backAngle: number;
-  neckAngle: number;
-  hipHeight: number;
-  shoulderHeight: number;
-  wristHeight: number;
-  barPathDeviation: number;
-}
-
-type ExerciseMetrics = SquatMetrics | DeadliftMetrics;
-
-interface SquatKeyPositions {
-  setup: SquatMetrics & { frame: number };
-  bottomPosition: SquatMetrics & { frame: number };
-  completion: SquatMetrics & { frame: number };
-}
-
-interface DeadliftKeyPositions {
-  setup: DeadliftMetrics & { frame: number };
-  startOfPull: DeadliftMetrics & { frame: number };
-  lockout: DeadliftMetrics & { frame: number };
-  completion: DeadliftMetrics & { frame: number };
-}
-
-type KeyPositions = SquatKeyPositions | DeadliftKeyPositions;
-
-interface SquatTemporalAnalysis {
-  hipRiseRate: number;
-  shoulderRiseRate: number;
-  riseRateRatio: number;
-  maxTorsoLean: number;
-  maxKneeForwardTravel: number;
-  neckExtensionMax: number;
-  minHipAngle: number;
-}
-
-interface DeadliftTemporalAnalysis {
-  avgBarPathDeviation: number;
-  maxBarPathDeviation: number;
-  maxBackAngle: number;
-  backAngleChange: number;
-  hipRiseRate: number;
-  shoulderRiseRate: number;
-  riseRateRatio: number;
-  neckExtensionMax: number;
-}
-
-type TemporalAnalysis = SquatTemporalAnalysis | DeadliftTemporalAnalysis;
-
-interface ExerciseConfig<M extends ExerciseMetrics = ExerciseMetrics, K extends KeyPositions = KeyPositions, T extends TemporalAnalysis = TemporalAnalysis> {
-  name: string;
-  requiredLandmarks: Record<string, number>;
-  visibilityThresholds: Record<string, number>;
-  calculateMetrics: (landmarks: NormalizedLandmark[], landmarkRefs: Record<string, NormalizedLandmark>) => M;
-  identifyKeyPositions: (allFramesMetrics: M[]) => K;
-  calculateTemporalPatterns: (allFramesMetrics: M[], keyPositions: K) => T | null;
-  riskThresholds: Record<string, number>;
-  detectRiskFlags: (temporalAnalysis: T, keyPositions: K, thresholds: Record<string, number>) => string[];
-}
-
-interface AnalysisData {
-  exerciseType: string;
-  frameCount: number;
-  duration: string;
-  keyPositions: KeyPositions;
-  temporalAnalysis: TemporalAnalysis | null;
-  riskFlags: string[];
-}
+import type {
+  Point3D,
+  SquatMetrics,
+  DeadliftMetrics,
+  ExerciseMetrics,
+  SquatKeyPositions,
+  DeadliftKeyPositions,
+  KeyPositions,
+  SquatTemporalAnalysis,
+  DeadliftTemporalAnalysis,
+  TemporalAnalysis,
+  ExerciseConfig,
+  AnalysisData,
+} from './poseDetection.types';
 
 // ============================================================================
 // CONSTANTS
