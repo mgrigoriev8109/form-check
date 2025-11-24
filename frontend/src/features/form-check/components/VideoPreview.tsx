@@ -81,7 +81,7 @@ const VideoPreview = ({
       ) : (
         <button
           onClick={onUploadAnother}
-          className="w-full bg-primary text-white py-4 px-6 rounded-lg font-medium text-lg hover:bg-primary-dark transition-colors shadow-sm"
+          className="w-full bg-accent text-gray-900 py-4 px-6 rounded-lg font-medium text-lg hover:bg-accent-dark transition-all shadow-sm"
         >
           Upload Another Video
         </button>
