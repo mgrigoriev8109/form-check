@@ -12,30 +12,30 @@ const VideoPreview = ({
   const videoRef = useRef(null);
 
   return (
-    <div className="max-w-2xl mx-auto space-y-4">
+    <div className="max-w-3xl mx-auto space-y-6">
       {/* Video Player */}
-      <div className="relative rounded-lg overflow-hidden bg-[#303030] shadow-xl border-4 border-[#DFB960]">
+      <div className="relative rounded-xl overflow-hidden bg-white shadow-md border border-gray-200">
         <video
           ref={videoRef}
           src={videoUrl}
           controls
-          className="w-full max-h-96"
+          className="w-full"
         />
       </div>
 
       {/* File Info */}
-      <div className="bg-[#F5F5F5] rounded-lg p-4 border-2 border-[#303030] border-opacity-20">
+      <div className="bg-white rounded-lg p-5 border border-gray-200 shadow-sm">
         <div className="flex items-center justify-between">
           <div>
-            <p className="font-bold text-[#303030]">{videoFile.name}</p>
-            <p className="text-sm text-[#303030] opacity-70">
+            <p className="font-medium text-gray-900">{videoFile.name}</p>
+            <p className="text-sm text-gray-500 mt-1">
               {(videoFile.size / (1024 * 1024)).toFixed(2)} MB • {exerciseType.charAt(0).toUpperCase() + exerciseType.slice(1)}
             </p>
           </div>
           {!results && !isAnalyzing && (
             <button
               onClick={onUploadAnother}
-              className="text-[#E26D5C] hover:text-[#d25a48] font-bold transition-colors"
+              className="text-gray-500 hover:text-gray-700 font-medium transition-colors text-sm"
             >
               Remove
             </button>
@@ -48,10 +48,10 @@ const VideoPreview = ({
         <button
           onClick={onAnalyze}
           disabled={isAnalyzing}
-          className={`w-full py-4 px-6 rounded-lg font-black text-xl transition-all transform shadow-lg uppercase tracking-wide ${
+          className={`w-full py-4 px-6 rounded-lg font-medium text-lg transition-all shadow-sm ${
             isAnalyzing
-              ? 'bg-[#2D5016] bg-opacity-50 text-white cursor-not-allowed'
-              : 'bg-[#2D5016] text-white hover:bg-[#234010] hover:scale-105'
+              ? 'bg-gray-400 text-white cursor-not-allowed'
+              : 'bg-accent text-white hover:bg-accent-dark'
           }`}
         >
           {isAnalyzing ? (
@@ -69,7 +69,7 @@ const VideoPreview = ({
       ) : (
         <button
           onClick={onUploadAnother}
-          className="w-full bg-[#E26D5C] text-white py-4 px-6 rounded-lg font-black text-xl hover:bg-[#d25a48] transition-all transform hover:scale-105 shadow-lg uppercase tracking-wide"
+          className="w-full bg-primary text-white py-4 px-6 rounded-lg font-medium text-lg hover:bg-primary-dark transition-colors shadow-sm"
         >
           Upload Another Video
         </button>

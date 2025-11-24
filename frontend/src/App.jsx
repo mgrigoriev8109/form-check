@@ -76,38 +76,40 @@ function App() {
   };
 
   return (
-    <div>
-      <AppHeader />
+    <div className="min-h-screen bg-neutral-50">
+      <div className="max-w-5xl mx-auto px-6 py-12">
+        <AppHeader />
 
-      {stage === 'upload' && (
-        <>
-          <VideoUploader onVideoSelected={handleVideoSelected} />
-          <VideoUploadTips />
-        </>
-      )}
+        {stage === 'upload' && (
+          <>
+            <VideoUploader onVideoSelected={handleVideoSelected} />
+            <VideoUploadTips />
+          </>
+        )}
 
-      {(stage === 'preview' || stage === 'analyzing' || stage === 'results') && (
-        <>
-          <VideoPreview
-            videoUrl={videoUrl}
-            videoFile={videoFile}
-            exerciseType={exerciseType}
-            onAnalyze={handleAnalyze}
-            onUploadAnother={handleUploadAnother}
-            isAnalyzing={stage === 'analyzing'}
-            results={results}
-          />
-          {stage === 'results' && results && (
-            <FormResults results={results} />
-          )}
-        </>
-      )}
+        {(stage === 'preview' || stage === 'analyzing' || stage === 'results') && (
+          <>
+            <VideoPreview
+              videoUrl={videoUrl}
+              videoFile={videoFile}
+              exerciseType={exerciseType}
+              onAnalyze={handleAnalyze}
+              onUploadAnother={handleUploadAnother}
+              isAnalyzing={stage === 'analyzing'}
+              results={results}
+            />
+            {stage === 'results' && results && (
+              <FormResults results={results} />
+            )}
+          </>
+        )}
 
-      {error && (
-        <div className="mt-4 p-4 bg-[#E26D5C] bg-opacity-10 border-2 border-[#E26D5C] rounded-lg max-w-2xl mx-auto">
-          <p className="text-[#E26D5C] text-sm font-semibold">{error}</p>
-        </div>
-      )}
+        {error && (
+          <div className="mt-8 p-4 bg-error/10 border border-error/30 rounded-lg max-w-3xl mx-auto">
+            <p className="text-error-dark text-sm">{error}</p>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
