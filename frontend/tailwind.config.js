@@ -9,26 +9,26 @@ export default {
       colors: {
         // Semantic color names for easy theme switching
         primary: {
-          DEFAULT: '#1e293b', // Deep Slate
-          light: '#334155',
-          dark: '#0f172a',
+          DEFAULT: '#0d9488', // Deep Teal
+          light: '#14b8a6',
+          dark: '#0f766e',
         },
         secondary: {
-          DEFAULT: '#22c55e', // Sage Green
-          light: '#4ade80',
-          dark: '#16a34a',
+          DEFAULT: '#f43f5e', // Vibrant Coral/Rose
+          light: '#fb7185',
+          dark: '#e11d48',
         },
         accent: {
-          DEFAULT: '#f59e0b', // Warm Amber
-          light: '#fbbf24',
-          dark: '#d97706',
+          DEFAULT: '#fbbf24', // Golden Amber
+          light: '#fcd34d',
+          dark: '#f59e0b',
         },
         neutral: {
-          50: '#f1f5f9',
-          100: '#e2e8f0',
-          200: '#cbd5e1',
-          300: '#94a3b8',
-          400: '#64748b',
+          50: '#f8fafc',
+          100: '#f1f5f9',
+          200: '#e2e8f0',
+          300: '#cbd5e1',
+          400: '#94a3b8',
         },
         error: {
           DEFAULT: '#dc2626',

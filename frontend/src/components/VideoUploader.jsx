@@ -165,7 +165,7 @@ const VideoUploader = ({ onVideoSelected }) => {
 
         <button
           onClick={handleButtonClick}
-          className="bg-accent text-white px-8 py-3 rounded-lg font-medium hover:bg-accent-dark transition-colors shadow-sm"
+          className="bg-accent text-gray-900 px-8 py-3 rounded-lg font-medium hover:bg-accent-dark transition-colors shadow-sm"
         >
           Choose File
         </button>
