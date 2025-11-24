@@ -34,6 +34,7 @@ const VideoPreview = ({
       </div>
 
       {/* File Info */}
+      {!results && (
       <div className="bg-white rounded-lg p-5 border border-gray-200 shadow-sm">
         <div className="flex items-center justify-between">
           <div>
@@ -52,6 +53,7 @@ const VideoPreview = ({
           )}
         </div>
       </div>
+      )}
 
       {/* Action Button */}
       {!results ? (

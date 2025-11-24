@@ -9,9 +9,9 @@ export default {
       colors: {
         // Semantic color names for easy theme switching
         primary: {
-          DEFAULT: '#0d9488', // Deep Teal
-          light: '#14b8a6',
-          dark: '#0f766e',
+          DEFAULT: '#166534', // Deep Forest Green
+          light: '#16a34a',
+          dark: '#14532d',
         },
         secondary: {
           DEFAULT: '#f43f5e', // Vibrant Coral/Rose
