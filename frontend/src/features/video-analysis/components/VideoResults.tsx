@@ -1,10 +1,10 @@
-interface FormResultsProps {
+interface VideoResultsProps {
   results: {
     analysis: string;
   };
 }
 
-const FormResults = ({ results }: FormResultsProps) => {
+const VideoResults = ({ results }: VideoResultsProps) => {
 
   return (
     <div className="max-w-3xl mx-auto mt-8">
@@ -17,4 +17,4 @@ const FormResults = ({ results }: FormResultsProps) => {
   );
 };
 
-export default FormResults;
+export default VideoResults;

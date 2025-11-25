@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import VideoUploader from './components/VideoUploader'
 import VideoPreview from './components/VideoPreview'
-import FormResults from './components/FormResults'
+import VideoResults from './components/VideoResults'
 import VideoUploadTips from './components/VideoUploadTips'
 import { analyzeExerciseVideo } from './utils/poseDetection'
 
@@ -11,7 +11,7 @@ interface AnalysisResults {
   analysis: string;
 }
 
-function FormCheckView() {
+function VideoAnalysisView() {
   // Stage management: 'upload' | 'preview' | 'analyzing' | 'results'
   const [stage, setStage] = useState<Stage>('upload');
 
@@ -106,7 +106,7 @@ function FormCheckView() {
             results={results}
           />
           {stage === 'results' && results && (
-            <FormResults results={results} />
+            <VideoResults results={results} />
           )}
         </>
       )}
@@ -120,4 +120,4 @@ function FormCheckView() {
   );
 }
 
-export default FormCheckView
+export default VideoAnalysisView
