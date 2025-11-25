@@ -86,6 +86,56 @@ backend/
 └── README.md               # This file
 ```
 
+## Testing
+
+This project includes comprehensive test coverage (93%) using pytest.
+
+### Quick Start
+
+Run all tests:
+```bash
+# Using the test runner script
+./run_tests.sh
+
+# Or directly with pytest
+source venv/bin/activate
+pytest
+```
+
+### Test Options
+
+```bash
+# Run specific test types
+./run_tests.sh unit           # Unit tests only
+./run_tests.sh integration    # Integration tests only
+
+# Coverage reports
+./run_tests.sh coverage       # HTML coverage report
+
+# Other options
+./run_tests.sh fast           # Skip coverage for speed
+./run_tests.sh verbose        # Detailed output
+```
+
+### Test Structure
+
+- **52 total tests** covering all major components
+- **Unit tests**: Schema validation, business logic, helpers
+- **Integration tests**: API endpoints, error handling, CORS
+- **Mocked external APIs**: No real API calls in tests
+
+See [tests/README.md](./tests/README.md) for detailed testing documentation.
+
+## Type Checking
+
+Run mypy for static type checking:
+
+```bash
+mypy app/
+```
+
+Configuration is in [mypy.ini](./mypy.ini).
+
 ## Development
 
 ### Adding new dependencies
@@ -95,9 +145,18 @@ pip install package-name
 pip freeze > requirements.txt
 ```
 
+### Code Quality Checklist
+
+Before committing:
+- [ ] Run tests: `./run_tests.sh`
+- [ ] Check types: `mypy app/`
+- [ ] Verify coverage: `./run_tests.sh coverage`
+
 ## Next Steps
 
-- [ ] Implement Claude API integration for form analysis
+- [x] ~~Add tests~~ (Complete - 93% coverage)
+- [x] ~~Implement Claude API integration for form analysis~~ (Complete)
 - [ ] Add video frame processing endpoint
-- [ ] Add error handling and logging
-- [ ] Add tests
+- [ ] Add structured logging
+- [ ] Add database integration for storing analysis history
+- [ ] Add authentication/authorization

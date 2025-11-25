@@ -20,7 +20,10 @@
       "Bash(npm run build:*)",
       "Bash(mypy:*)",
       "Bash(npm test:*)",
-      "Bash(tree:*)"
+      "Bash(tree:*)",
+      "Bash(pytest:*)",
+      "Bash(chmod:*)",
+      "Bash(./run_tests.sh:*)"
     ],
     "deny": [],
     "ask": []
