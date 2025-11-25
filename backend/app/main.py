@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.routers import form_analysis
+from typing import Dict
 import os
 
 app = FastAPI(
@@ -23,7 +24,7 @@ app.include_router(form_analysis.router)
 
 
 @app.get("/")
-async def root():
+async def root() -> Dict[str, str]:
     """Root endpoint - API information"""
     return {
         "name": "Form Check API",
@@ -33,7 +34,7 @@ async def root():
 
 
 @app.get("/health")
-async def health_check():
+async def health_check() -> Dict[str, str]:
     """Health check endpoint"""
     return {
         "status": "healthy",

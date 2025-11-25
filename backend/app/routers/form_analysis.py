@@ -10,7 +10,7 @@ router = APIRouter(
 
 
 @router.post("/analyze-form", response_model=FormAnalysisResponse)
-async def analyze_form(request: FormAnalysisRequest):
+async def analyze_form(request: FormAnalysisRequest) -> FormAnalysisResponse:
     """
     Analyze workout form from biomechanics data using Claude AI
 

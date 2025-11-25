@@ -10,7 +10,7 @@ load_dotenv()
 class ClaudeService:
     """Service for interacting with Claude API"""
 
-    def __init__(self):
+    def __init__(self) -> None:
         api_key = os.getenv("ANTHROPIC_API_KEY")
         if not api_key:
             raise ValueError("ANTHROPIC_API_KEY environment variable is not set")
@@ -53,7 +53,11 @@ class ClaudeService:
             ],
         )
 
-        return message.content[0].text
+        # Extract text from response (first content block is always text for non-tool calls)
+        content_block = message.content[0]
+        if hasattr(content_block, 'text'):
+            return content_block.text
+        raise ValueError("Unexpected response format from Claude API")
 
 
 
