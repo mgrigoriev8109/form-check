@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException
-from app.models.schemas import FormAnalysisRequest, FormAnalysisResponse
-from app.services.claude_service import get_claude_service
+from app.features.form_analysis.schemas import FormAnalysisRequest, FormAnalysisResponse
+from app.shared.claude_client import get_claude_service
 from datetime import datetime
 
 router = APIRouter(

@@ -2,7 +2,7 @@ import os
 from typing import Dict, Any
 import anthropic
 from dotenv import load_dotenv
-from app.services.exercise_prompts import get_exercise_prompt, format_biomechanics_data
+from app.features.form_analysis.prompts import get_exercise_prompt, format_biomechanics_data
 
 load_dotenv()
 

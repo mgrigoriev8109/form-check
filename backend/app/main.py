@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.routers import form_analysis
+from app.features.form_analysis import router as form_analysis
 from typing import Dict
 import os
 
