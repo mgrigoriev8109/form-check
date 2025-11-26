@@ -21,6 +21,7 @@ import type {
   ExerciseConfig,
   AnalysisData,
 } from './poseDetection.types';
+import { sanitizeVideoUrl } from './urlSanitizer';
 
 // ============================================================================
 // CONSTANTS
@@ -588,7 +589,8 @@ export async function analyzeExerciseVideo(
       }
 
       const videoUrl = URL.createObjectURL(videoFile);
-      video.src = videoUrl;
+      const sanitizedUrl = sanitizeVideoUrl(videoUrl);
+      video.src = sanitizedUrl;
       video.preload = 'metadata';
 
       video.addEventListener('loadedmetadata', async () => {

@@ -187,6 +187,123 @@ describe('Public API Functions', () => {
 });
 
 // ============================================================================
+// URL SANITIZATION TESTS
+// ============================================================================
+
+describe('URL Sanitization in analyzeExerciseVideo', () => {
+  let originalCreateElement: typeof document.createElement;
+  let mockCreateObjectURL: ReturnType<typeof vi.fn>;
+  let mockRevokeObjectURL: ReturnType<typeof vi.fn>;
+  let createdVideoElement: HTMLVideoElement | null = null;
+
+  beforeEach(() => {
+    // Save original createElement
+    originalCreateElement = document.createElement.bind(document);
+
+    // Mock URL.createObjectURL and URL.revokeObjectURL
+    mockCreateObjectURL = vi.fn((file: File) => `blob:mock-url-${file.name}`);
+    mockRevokeObjectURL = vi.fn();
+    global.URL.createObjectURL = mockCreateObjectURL;
+    global.URL.revokeObjectURL = mockRevokeObjectURL;
+
+    // Track video elements created
+    createdVideoElement = null;
+
+    // Spy on createElement to intercept video element creation
+    vi.spyOn(document, 'createElement').mockImplementation((tagName: string) => {
+      const element = originalCreateElement(tagName);
+      if (tagName === 'video') {
+        createdVideoElement = element as HTMLVideoElement;
+      }
+      return element;
+    });
+  });
+
+  afterEach(() => {
+    vi.clearAllMocks();
+    vi.restoreAllMocks();
+    createdVideoElement = null;
+  });
+
+  it('should block javascript: protocol if injected via URL.createObjectURL', async () => {
+    // Mock URL.createObjectURL to return malicious URL
+    mockCreateObjectURL.mockReturnValue('javascript:alert("XSS")');
+
+    const mockFile = new File(['video content'], 'test.mp4', { type: 'video/mp4' });
+
+    // Start the analysis
+    const analysisPromise = analyzeExerciseVideo(mockFile, 'squat');
+
+    // Wait for video element creation
+    await new Promise(resolve => setTimeout(resolve, 10));
+
+    // Verify video src does not contain javascript:
+    expect(createdVideoElement).not.toBeNull();
+    if (createdVideoElement) {
+      expect(createdVideoElement.src).not.toContain('javascript:');
+      expect(createdVideoElement.src).not.toContain('alert');
+    }
+
+    await analysisPromise.catch(() => {});
+  });
+
+  it('should block data: protocol if injected', async () => {
+    // Mock URL.createObjectURL to return data URL
+    mockCreateObjectURL.mockReturnValue('data:text/html,<script>alert("XSS")</script>');
+
+    const mockFile = new File(['video content'], 'test.mp4', { type: 'video/mp4' });
+
+    const analysisPromise = analyzeExerciseVideo(mockFile, 'squat');
+
+    await new Promise(resolve => setTimeout(resolve, 10));
+
+    expect(createdVideoElement).not.toBeNull();
+    if (createdVideoElement) {
+      expect(createdVideoElement.src).not.toContain('data:');
+      expect(createdVideoElement.src).not.toContain('script');
+    }
+
+    await analysisPromise.catch(() => {});
+  });
+
+  it('should block http: URLs if injected', async () => {
+    // Mock URL.createObjectURL to return external URL
+    mockCreateObjectURL.mockReturnValue('http://evil.com/malicious.mp4');
+
+    const mockFile = new File(['video content'], 'test.mp4', { type: 'video/mp4' });
+
+    const analysisPromise = analyzeExerciseVideo(mockFile, 'squat');
+
+    await new Promise(resolve => setTimeout(resolve, 10));
+
+    expect(createdVideoElement).not.toBeNull();
+    if (createdVideoElement) {
+      expect(createdVideoElement.src).not.toContain('evil.com');
+    }
+
+    await analysisPromise.catch(() => {});
+  });
+
+  it('should block https: URLs if injected', async () => {
+    // Mock URL.createObjectURL to return external HTTPS URL
+    mockCreateObjectURL.mockReturnValue('https://evil.com/malicious.mp4');
+
+    const mockFile = new File(['video content'], 'test.mp4', { type: 'video/mp4' });
+
+    const analysisPromise = analyzeExerciseVideo(mockFile, 'squat');
+
+    await new Promise(resolve => setTimeout(resolve, 10));
+
+    expect(createdVideoElement).not.toBeNull();
+    if (createdVideoElement) {
+      expect(createdVideoElement.src).not.toContain('evil.com');
+    }
+
+    await analysisPromise.catch(() => {});
+  });
+});
+
+// ============================================================================
 // SQUAT EXERCISE CONFIGURATION TESTS
 // ============================================================================
 
