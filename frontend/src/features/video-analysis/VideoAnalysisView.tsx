@@ -25,6 +25,7 @@ function VideoAnalysisView() {
   const [error, setError] = useState<string | null>(null);
 
   const handleVideoSelected = (file: File, exercise: string) => {
+    // lgtm[js/xss-through-dom] - Safe: URL.createObjectURL generates a secure blob URL from File API
     const url = URL.createObjectURL(file);
     setVideoFile(file);
     setVideoUrl(url);

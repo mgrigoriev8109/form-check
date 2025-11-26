@@ -47,6 +47,7 @@ const VideoUploader = ({ onVideoSelected }: VideoUploaderProps) => {
       return;
     }
 
+    // lgtm[js/xss-through-dom] - Safe: URL.createObjectURL generates a secure blob URL from File API
     const url = URL.createObjectURL(file);
     const video = document.createElement('video');
     video.src = url;

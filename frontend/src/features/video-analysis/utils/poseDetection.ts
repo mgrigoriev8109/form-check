@@ -587,6 +587,7 @@ export async function analyzeExerciseVideo(
         return;
       }
 
+      // lgtm[js/xss-through-dom] - Safe: URL.createObjectURL generates a secure blob URL from File API
       const videoUrl = URL.createObjectURL(videoFile);
       video.src = videoUrl;
       video.preload = 'metadata';
