@@ -1,5 +1,4 @@
 import { useState, useRef, ChangeEvent, DragEvent } from 'react';
-import { sanitizeVideoUrl } from '../utils/urlSanitizer';
 
 interface VideoUploaderProps {
   onVideoSelected: (file: File, exerciseType: string) => void;
@@ -49,9 +48,8 @@ const VideoUploader = ({ onVideoSelected }: VideoUploaderProps) => {
     }
 
     const url = URL.createObjectURL(file);
-    const sanitizedUrl = sanitizeVideoUrl(url);
     const video = document.createElement('video');
-    video.src = sanitizedUrl;
+    video.src = url;
 
     try {
       await checkVideoDuration(video);

@@ -1,5 +1,4 @@
-import { useRef, useMemo } from 'react';
-import { sanitizeVideoUrl } from '../utils/urlSanitizer';
+import { useRef } from 'react';
 
 interface VideoPreviewProps {
   videoUrl: string;
@@ -22,16 +21,13 @@ const VideoPreview = ({
 }: VideoPreviewProps) => {
   const videoRef = useRef<HTMLVideoElement>(null);
 
-  // Sanitize video URL to prevent XSS - only allow blob URLs
-  const sanitizedVideoUrl = useMemo(() => sanitizeVideoUrl(videoUrl), [videoUrl]);
-
   return (
     <div className="max-w-3xl mx-auto space-y-6">
       {/* Video Player */}
       <div className="relative rounded-xl overflow-hidden bg-white shadow-md border border-gray-200">
         <video
           ref={videoRef}
-          src={sanitizedVideoUrl}
+          src={videoUrl}
           controls
           className="w-full"
         />
