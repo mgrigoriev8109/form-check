@@ -27,7 +27,8 @@
       "Bash(docker-compose build:*)",
       "Bash(docker compose build:*)",
       "Bash(docker compose:*)",
-      "Bash(docker logs:*)"
+      "Bash(docker logs:*)",
+      "Bash(npm run format:check:*)"
     ],
     "deny": [],
     "ask": []
