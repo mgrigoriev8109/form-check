@@ -23,7 +23,11 @@
       "Bash(tree:*)",
       "Bash(pytest:*)",
       "Bash(chmod:*)",
-      "Bash(./run_tests.sh:*)"
+      "Bash(./run_tests.sh:*)",
+      "Bash(docker-compose build:*)",
+      "Bash(docker compose build:*)",
+      "Bash(docker compose:*)",
+      "Bash(docker logs:*)"
     ],
     "deny": [],
     "ask": []
