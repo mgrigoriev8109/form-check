@@ -33,7 +33,9 @@
       "Bash(npx husky:*)",
       "Bash(git add:*)",
       "Bash(git commit:*)",
-      "Bash(git rm:*)"
+      "Bash(git rm:*)",
+      "Bash(ruff format:*)",
+      "Bash(ruff check:*)"
     ],
     "deny": [],
     "ask": []

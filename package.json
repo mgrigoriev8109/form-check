@@ -13,6 +13,9 @@
   "lint-staged": {
     "frontend/**/*.{js,jsx,ts,tsx,css,md,json}": [
       "prettier --write"
+    ],
+    "backend/**/*.py": [
+      "backend/venv/bin/ruff format"
     ]
   }
 }
