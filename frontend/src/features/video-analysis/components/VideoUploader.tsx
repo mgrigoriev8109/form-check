@@ -28,11 +28,17 @@ const VideoUploader = ({ onVideoSelected }: VideoUploaderProps) => {
     return true;
   };
 
-  const checkVideoDuration = (videoElement: HTMLVideoElement): Promise<boolean> => {
+  const checkVideoDuration = (
+    videoElement: HTMLVideoElement
+  ): Promise<boolean> => {
     return new Promise((resolve, reject) => {
       videoElement.onloadedmetadata = () => {
         if (videoElement.duration > MAX_DURATION) {
-          reject(new Error(`Video must be ${MAX_DURATION} seconds or less. Your video is ${Math.round(videoElement.duration)} seconds.`));
+          reject(
+            new Error(
+              `Video must be ${MAX_DURATION} seconds or less. Your video is ${Math.round(videoElement.duration)} seconds.`
+            )
+          );
         } else {
           resolve(true);
         }
@@ -72,9 +78,9 @@ const VideoUploader = ({ onVideoSelected }: VideoUploaderProps) => {
   const handleDrag = (e: DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     e.stopPropagation();
-    if (e.type === "dragenter" || e.type === "dragover") {
+    if (e.type === 'dragenter' || e.type === 'dragover') {
       setDragActive(true);
-    } else if (e.type === "dragleave") {
+    } else if (e.type === 'dragleave') {
       setDragActive(false);
     }
   };

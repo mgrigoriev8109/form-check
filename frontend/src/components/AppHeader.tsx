@@ -8,5 +8,5 @@ export default function AppHeader() {
         AI-powered exercise form analysis for better, safer workouts
       </p>
     </div>
-  )
+  );
 }
