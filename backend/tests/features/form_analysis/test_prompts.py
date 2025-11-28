@@ -1,14 +1,16 @@
 """
 Unit tests for form analysis prompts module
 """
+
+from typing import Any
+
 import pytest
-from typing import Dict, Any
 
 from app.features.form_analysis.prompts import (
-    get_exercise_prompt,
-    format_biomechanics_data,
+    EXERCISE_PROMPTS,
     SQUAT_PROMPT,
-    EXERCISE_PROMPTS
+    format_biomechanics_data,
+    get_exercise_prompt,
 )
 
 
@@ -85,7 +87,7 @@ def test_get_exercise_prompt_deadlift() -> None:
 
 @pytest.mark.unit
 def test_format_biomechanics_data_complete(
-    sample_biomechanics_data: Dict[str, Any]
+    sample_biomechanics_data: dict[str, Any],
 ) -> None:
     """
     Test formatting complete biomechanics data
@@ -114,7 +116,7 @@ def test_format_biomechanics_data_complete(
 
 @pytest.mark.unit
 def test_format_biomechanics_data_with_risks(
-    sample_biomechanics_data_with_risks: Dict[str, Any]
+    sample_biomechanics_data_with_risks: dict[str, Any],
 ) -> None:
     """
     Test formatting biomechanics data with risk flags
@@ -135,7 +137,7 @@ def test_format_biomechanics_data_with_risks(
 
 @pytest.mark.unit
 def test_format_biomechanics_data_no_risks(
-    sample_biomechanics_data: Dict[str, Any]
+    sample_biomechanics_data: dict[str, Any],
 ) -> None:
     """
     Test formatting biomechanics data without risk flags
@@ -159,12 +161,10 @@ def test_format_biomechanics_data_missing_fields() -> None:
     Asserts:
         Missing fields show as 'N/A'
     """
-    incomplete_data: Dict[str, Any] = {
+    incomplete_data: dict[str, Any] = {
         "frameCount": 50,
-        "keyPositions": {
-            "bottomPosition": {}
-        },
-        "temporalAnalysis": {}
+        "keyPositions": {"bottomPosition": {}},
+        "temporalAnalysis": {},
     }
 
     formatted = format_biomechanics_data(incomplete_data)
@@ -181,7 +181,7 @@ def test_format_biomechanics_data_empty_dict() -> None:
     Asserts:
         Empty dict doesn't crash, returns basic structure
     """
-    empty_data: Dict[str, Any] = {}
+    empty_data: dict[str, Any] = {}
 
     formatted = format_biomechanics_data(empty_data)
 
@@ -234,15 +234,15 @@ def test_format_biomechanics_data_preserves_precision() -> None:
                 "hipAngle": 95.5555,
                 "kneeAngle": 85.1234,
                 "torsoLean": 35.7890,
-                "neckAngle": 155.0
+                "neckAngle": 155.0,
             }
         },
         "temporalAnalysis": {
             "riseRateRatio": 1.3333,
             "maxTorsoLean": 35.7890,
-            "minHipAngle": 95.5555
+            "minHipAngle": 95.5555,
         },
-        "riskFlags": []
+        "riskFlags": [],
     }
 
     formatted = format_biomechanics_data(data)

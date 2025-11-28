@@ -1,12 +1,11 @@
+from datetime import UTC, datetime
+
 from fastapi import APIRouter, HTTPException
+
 from app.features.form_analysis.schemas import FormAnalysisRequest, FormAnalysisResponse
 from app.shared.claude_client import get_claude_service
-from datetime import datetime
 
-router = APIRouter(
-    prefix="/api",
-    tags=["form-analysis"]
-)
+router = APIRouter(prefix="/api", tags=["form-analysis"])
 
 
 @router.post("/analyze-form", response_model=FormAnalysisResponse)
@@ -36,19 +35,17 @@ async def analyze_form(request: FormAnalysisRequest) -> FormAnalysisResponse:
         # Return response
         return FormAnalysisResponse(
             analysis=analysis,
-            timestamp=datetime.utcnow(),
-            exerciseType=request.exerciseType
+            timestamp=datetime.now(UTC),
+            exerciseType=request.exerciseType,
         )
 
     except ValueError as e:
         # API key not configured
         raise HTTPException(
-            status_code=500,
-            detail=f"Service configuration error: {str(e)}"
-        )
+            status_code=500, detail=f"Service configuration error: {e!s}"
+        ) from e
     except Exception as e:
         # Other errors during analysis
         raise HTTPException(
-            status_code=500,
-            detail=f"Failed to analyze form: {str(e)}"
-        )
+            status_code=500, detail=f"Failed to analyze form: {e!s}"
+        ) from e

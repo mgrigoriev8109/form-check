@@ -73,6 +73,10 @@ dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
     "ARG",     # Unused function arguments
     "S101",    # Use of assert
 ]
+# Ignore naming conventions in Pydantic schemas (camelCase for API compatibility)
+"app/features/form_analysis/schemas.py" = [
+    "N815",    # mixedCase variable in class scope (Pydantic fields)
+]
 
 [tool.ruff.format]
 # Use double quotes for strings

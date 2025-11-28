@@ -1,10 +1,13 @@
 """
 Unit tests for ClaudeService
 """
-import pytest
+
 import os
-from typing import Dict, Any
-from unittest.mock import Mock, AsyncMock, patch
+from typing import Any
+from unittest.mock import AsyncMock, Mock, patch
+
+import pytest
+
 from app.shared.claude_client import ClaudeService, get_claude_service
 
 
@@ -41,8 +44,8 @@ def test_claude_service_initialization_missing_api_key() -> None:
 @pytest.mark.unit
 async def test_analyze_form_success(
     mock_claude_service: ClaudeService,
-    sample_biomechanics_data: Dict[str, Any],
-    mock_claude_response: str
+    sample_biomechanics_data: dict[str, Any],
+    mock_claude_response: str,
 ) -> None:
     """
     Test successful form analysis with mocked Claude API
@@ -74,8 +77,7 @@ async def test_analyze_form_success(
 
 @pytest.mark.unit
 async def test_analyze_form_with_different_exercise_types(
-    mock_claude_service: ClaudeService,
-    sample_biomechanics_data: Dict[str, Any]
+    mock_claude_service: ClaudeService, sample_biomechanics_data: dict[str, Any]
 ) -> None:
     """
     Test form analysis with different exercise types
@@ -100,9 +102,7 @@ async def test_analyze_form_with_different_exercise_types(
 
 
 @pytest.mark.unit
-async def test_analyze_form_api_error(
-    sample_biomechanics_data: Dict[str, Any]
-) -> None:
+async def test_analyze_form_api_error(sample_biomechanics_data: dict[str, Any]) -> None:
     """
     Test form analysis handles API errors gracefully
 
@@ -127,7 +127,7 @@ async def test_analyze_form_api_error(
 
 @pytest.mark.unit
 async def test_analyze_form_unexpected_response_format(
-    sample_biomechanics_data: Dict[str, Any]
+    sample_biomechanics_data: dict[str, Any],
 ) -> None:
     """
     Test form analysis handles unexpected response format
@@ -157,7 +157,7 @@ async def test_analyze_form_unexpected_response_format(
 @pytest.mark.unit
 async def test_analyze_form_with_risk_flags(
     mock_claude_service: ClaudeService,
-    sample_biomechanics_data_with_risks: Dict[str, Any]
+    sample_biomechanics_data_with_risks: dict[str, Any],
 ) -> None:
     """
     Test form analysis with risk flags included
@@ -184,8 +184,7 @@ async def test_analyze_form_with_risk_flags(
 
 @pytest.mark.unit
 async def test_analyze_form_system_prompt_caching(
-    mock_claude_service: ClaudeService,
-    sample_biomechanics_data: Dict[str, Any]
+    mock_claude_service: ClaudeService, sample_biomechanics_data: dict[str, Any]
 ) -> None:
     """
     Test that system prompt uses cache control for efficiency
@@ -218,6 +217,7 @@ def test_get_claude_service_singleton() -> None:
     """
     # Reset the global singleton
     import app.shared.claude_client as client_module
+
     client_module._claude_service = None
 
     service1 = get_claude_service()
@@ -237,12 +237,12 @@ async def test_analyze_form_empty_data(mock_claude_service: ClaudeService) -> No
     Asserts:
         Service handles empty data gracefully
     """
-    empty_data: Dict[str, Any] = {
+    empty_data: dict[str, Any] = {
         "exerciseType": "squat",
         "frameCount": 0,
         "keyPositions": {},
         "temporalAnalysis": {},
-        "riskFlags": []
+        "riskFlags": [],
     }
 
     result = await mock_claude_service.analyze_form(empty_data)
@@ -252,8 +252,7 @@ async def test_analyze_form_empty_data(mock_claude_service: ClaudeService) -> No
 
 @pytest.mark.unit
 async def test_analyze_form_model_configuration(
-    mock_claude_service: ClaudeService,
-    sample_biomechanics_data: Dict[str, Any]
+    mock_claude_service: ClaudeService, sample_biomechanics_data: dict[str, Any]
 ) -> None:
     """
     Test that Claude API is called with correct model configuration

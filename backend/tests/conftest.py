@@ -1,12 +1,13 @@
 """
 Pytest configuration and shared fixtures for all tests
 """
+
 import os
-import pytest
-from typing import Dict, Any, AsyncGenerator
-from fastapi.testclient import TestClient
+from typing import Any
 from unittest.mock import AsyncMock, Mock
-from datetime import datetime
+
+import pytest
+from fastapi.testclient import TestClient
 
 # Set test environment variables before importing app
 os.environ["ANTHROPIC_API_KEY"] = "test-api-key-12345"
@@ -28,7 +29,7 @@ def test_client() -> TestClient:
 
 
 @pytest.fixture
-def sample_biomechanics_data() -> Dict[str, Any]:
+def sample_biomechanics_data() -> dict[str, Any]:
     """
     Sample biomechanics data for testing form analysis
 
@@ -49,7 +50,7 @@ def sample_biomechanics_data() -> Dict[str, Any]:
                 "neckAngle": 165.0,
                 "hipHeight": 0.95,
                 "shoulderHeight": 1.0,
-                "kneeForwardTravel": 0.0
+                "kneeForwardTravel": 0.0,
             },
             "bottomPosition": {
                 "frame": 45,
@@ -60,7 +61,7 @@ def sample_biomechanics_data() -> Dict[str, Any]:
                 "neckAngle": 155.0,
                 "hipHeight": 0.35,
                 "shoulderHeight": 0.55,
-                "kneeForwardTravel": 15.0
+                "kneeForwardTravel": 15.0,
             },
             "completion": {
                 "frame": 89,
@@ -71,8 +72,8 @@ def sample_biomechanics_data() -> Dict[str, Any]:
                 "neckAngle": 165.0,
                 "hipHeight": 0.95,
                 "shoulderHeight": 1.0,
-                "kneeForwardTravel": 0.0
-            }
+                "kneeForwardTravel": 0.0,
+            },
         },
         "temporalAnalysis": {
             "hipRiseRate": 0.0133,
@@ -81,14 +82,14 @@ def sample_biomechanics_data() -> Dict[str, Any]:
             "maxTorsoLean": 35.0,
             "maxKneeForwardTravel": 15.0,
             "neckExtensionMax": 165.0,
-            "minHipAngle": 95.0
+            "minHipAngle": 95.0,
         },
-        "riskFlags": []
+        "riskFlags": [],
     }
 
 
 @pytest.fixture
-def sample_biomechanics_data_with_risks() -> Dict[str, Any]:
+def sample_biomechanics_data_with_risks() -> dict[str, Any]:
     """
     Sample biomechanics data with risk flags for testing
 
@@ -109,7 +110,7 @@ def sample_biomechanics_data_with_risks() -> Dict[str, Any]:
                 "neckAngle": 145.0,
                 "hipHeight": 0.65,
                 "shoulderHeight": 0.75,
-                "kneeForwardTravel": 5.0
+                "kneeForwardTravel": 5.0,
             },
             "bottomPosition": {
                 "frame": 10,
@@ -120,7 +121,7 @@ def sample_biomechanics_data_with_risks() -> Dict[str, Any]:
                 "neckAngle": 135.0,
                 "hipHeight": 0.35,
                 "shoulderHeight": 0.45,
-                "kneeForwardTravel": 10.0
+                "kneeForwardTravel": 10.0,
             },
             "completion": {
                 "frame": 79,
@@ -131,8 +132,8 @@ def sample_biomechanics_data_with_risks() -> Dict[str, Any]:
                 "neckAngle": 165.0,
                 "hipHeight": 0.95,
                 "shoulderHeight": 1.0,
-                "kneeForwardTravel": 0.0
-            }
+                "kneeForwardTravel": 0.0,
+            },
         },
         "temporalAnalysis": {
             "hipRiseRate": 0.0075,
@@ -141,13 +142,13 @@ def sample_biomechanics_data_with_risks() -> Dict[str, Any]:
             "maxTorsoLean": 55.0,
             "maxKneeForwardTravel": 10.0,
             "neckExtensionMax": 165.0,
-            "minHipAngle": 75.0
+            "minHipAngle": 75.0,
         },
         "riskFlags": [
             "Excessive torso lean detected (55.0°)",
             "Neck hyperextension risk",
-            "Hips rising faster than shoulders"
-        ]
+            "Hips rising faster than shoulders",
+        ],
     }
 
 
