@@ -65,10 +65,10 @@ async def test_analyze_form_success(
     assert len(result) > 0
 
     # Verify the API was called
-    mock_claude_service.client.messages.create.assert_called_once()
+    mock_claude_service.client.messages.create.assert_called_once()  # type: ignore[attr-defined]
 
     # Verify the call arguments
-    call_args = mock_claude_service.client.messages.create.call_args
+    call_args = mock_claude_service.client.messages.create.call_args  # type: ignore[attr-defined]
     assert call_args.kwargs["model"] == "claude-3-5-haiku-20241022"
     assert call_args.kwargs["max_tokens"] == 450
     assert "messages" in call_args.kwargs
@@ -175,7 +175,7 @@ async def test_analyze_form_with_risk_flags(
     assert len(result) > 0
 
     # Verify risk flags are included in the request
-    call_args = mock_claude_service.client.messages.create.call_args
+    call_args = mock_claude_service.client.messages.create.call_args  # type: ignore[attr-defined]
     user_message = call_args.kwargs["messages"][0]["content"]
 
     # Check that risk flags appear in formatted data
@@ -198,7 +198,7 @@ async def test_analyze_form_system_prompt_caching(
     """
     await mock_claude_service.analyze_form(sample_biomechanics_data)
 
-    call_args = mock_claude_service.client.messages.create.call_args
+    call_args = mock_claude_service.client.messages.create.call_args  # type: ignore[attr-defined]
     system_messages = call_args.kwargs["system"]
 
     # Verify cache control is set
@@ -266,7 +266,7 @@ async def test_analyze_form_model_configuration(
     """
     await mock_claude_service.analyze_form(sample_biomechanics_data)
 
-    call_args = mock_claude_service.client.messages.create.call_args
+    call_args = mock_claude_service.client.messages.create.call_args  # type: ignore[attr-defined]
 
     # Verify model configuration
     assert call_args.kwargs["model"] == "claude-3-5-haiku-20241022"

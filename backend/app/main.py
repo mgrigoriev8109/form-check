@@ -1,9 +1,11 @@
 import os
+from collections.abc import Awaitable, Callable
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
+from starlette.responses import Response
 
 from app.features.form_analysis import router as form_analysis
 
@@ -18,7 +20,9 @@ app = FastAPI(
 class SecurityHeadersMiddleware(BaseHTTPMiddleware):
     """Add security headers to all responses"""
 
-    async def dispatch(self, request: Request, call_next):
+    async def dispatch(
+        self, request: Request, call_next: Callable[[Request], Awaitable[Response]]
+    ) -> Response:
         response = await call_next(request)
 
         # Content Security Policy (for API docs pages)

@@ -56,7 +56,7 @@ def test_biomechanics_metrics_missing_required_field() -> None:
         ValidationError is raised
     """
     with pytest.raises(ValidationError) as exc_info:
-        BiomechanicsMetrics(
+        BiomechanicsMetrics(  # type: ignore[call-arg]
             hipAngle=95.0,
             kneeAngle=85.0,
             # ankleAngle missing
@@ -81,7 +81,7 @@ def test_biomechanics_metrics_invalid_type() -> None:
     """
     with pytest.raises(ValidationError):
         BiomechanicsMetrics(
-            hipAngle="not-a-number",  # Should be float
+            hipAngle="not-a-number",  # type: ignore[arg-type]
             kneeAngle=85.0,
             ankleAngle=70.0,
             torsoLean=35.0,
@@ -257,7 +257,7 @@ def test_form_analysis_request_default_risk_flags() -> None:
         },
     }
 
-    request = FormAnalysisRequest(**minimal_data)
+    request = FormAnalysisRequest(**minimal_data)  # type: ignore[arg-type]
     assert request.riskFlags == []
 
 
@@ -319,7 +319,7 @@ def test_form_analysis_request_optional_all_frames() -> None:
         },
     }
 
-    request = FormAnalysisRequest(**minimal_data)
+    request = FormAnalysisRequest(**minimal_data)  # type: ignore[arg-type]
     assert request.allFramesData is None
 
 
@@ -349,7 +349,7 @@ def test_form_analysis_response_missing_required() -> None:
         ValidationError is raised when required fields missing
     """
     with pytest.raises(ValidationError):
-        FormAnalysisResponse(
+        FormAnalysisResponse(  # type: ignore[call-arg]
             # analysis missing
             timestamp=datetime.now(UTC)
             # exerciseType missing
