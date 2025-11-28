@@ -1,9 +1,9 @@
-import { useState } from 'react'
-import VideoUploader from './components/VideoUploader'
-import VideoPreview from './components/VideoPreview'
-import VideoResults from './components/VideoResults'
-import VideoUploadTips from './components/VideoUploadTips'
-import { analyzeExerciseVideo } from './utils/poseDetection'
+import { useState } from 'react';
+import VideoUploader from './components/VideoUploader';
+import VideoPreview from './components/VideoPreview';
+import VideoResults from './components/VideoResults';
+import VideoUploadTips from './components/VideoUploadTips';
+import { analyzeExerciseVideo } from './utils/poseDetection';
 
 type Stage = 'upload' | 'preview' | 'analyzing' | 'results';
 
@@ -44,7 +44,11 @@ function VideoAnalysisView() {
 
     try {
       // Extract pose keypoints and biomechanical metrics from video
-      const biomechanicsData = await analyzeExerciseVideo(videoFile, exerciseType, 8);
+      const biomechanicsData = await analyzeExerciseVideo(
+        videoFile,
+        exerciseType,
+        8
+      );
 
       // Send keypoint data to backend for LLM analysis
       const response = await fetch('http://localhost:8000/api/analyze-form', {
@@ -52,7 +56,7 @@ function VideoAnalysisView() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(biomechanicsData)
+        body: JSON.stringify(biomechanicsData),
       });
 
       if (!response.ok) {
@@ -63,7 +67,6 @@ function VideoAnalysisView() {
       const data: AnalysisResults = await response.json();
       setResults(data);
       setStage('results');
-
     } catch (err) {
       setError((err as Error).message);
       setStage('preview'); // Return to preview on error
@@ -95,22 +98,25 @@ function VideoAnalysisView() {
         </>
       )}
 
-      {(stage === 'preview' || stage === 'analyzing' || stage === 'results') && videoFile && videoUrl && exerciseType && (
-        <>
-          <VideoPreview
-            videoUrl={videoUrl}
-            videoFile={videoFile}
-            exerciseType={exerciseType}
-            onAnalyze={handleAnalyze}
-            onUploadAnother={handleUploadAnother}
-            isAnalyzing={stage === 'analyzing'}
-            results={results}
-          />
-          {stage === 'results' && results && (
-            <VideoResults results={results} />
-          )}
-        </>
-      )}
+      {(stage === 'preview' || stage === 'analyzing' || stage === 'results') &&
+        videoFile &&
+        videoUrl &&
+        exerciseType && (
+          <>
+            <VideoPreview
+              videoUrl={videoUrl}
+              videoFile={videoFile}
+              exerciseType={exerciseType}
+              onAnalyze={handleAnalyze}
+              onUploadAnother={handleUploadAnother}
+              isAnalyzing={stage === 'analyzing'}
+              results={results}
+            />
+            {stage === 'results' && results && (
+              <VideoResults results={results} />
+            )}
+          </>
+        )}
 
       {error && (
         <div className="mt-8 p-4 bg-error/10 border border-error/30 rounded-lg max-w-3xl mx-auto">
@@ -121,4 +127,4 @@ function VideoAnalysisView() {
   );
 }
 
-export default VideoAnalysisView
+export default VideoAnalysisView;

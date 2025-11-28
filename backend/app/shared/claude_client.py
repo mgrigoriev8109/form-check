@@ -1,8 +1,13 @@
 import os
-from typing import Dict, Any
+from typing import Any
+
 import anthropic
 from dotenv import load_dotenv
-from app.features.form_analysis.prompts import get_exercise_prompt, format_biomechanics_data
+
+from app.features.form_analysis.prompts import (
+    format_biomechanics_data,
+    get_exercise_prompt,
+)
 
 load_dotenv()
 
@@ -16,7 +21,7 @@ class ClaudeService:
             raise ValueError("ANTHROPIC_API_KEY environment variable is not set")
         self.client = anthropic.AsyncAnthropic(api_key=api_key)
 
-    async def analyze_form(self, biomechanics_data: Dict[str, Any]) -> str:
+    async def analyze_form(self, biomechanics_data: dict[str, Any]) -> str:
         """
         Analyze workout form using biomechanical keypoint data
 
@@ -31,7 +36,7 @@ class ClaudeService:
         Returns:
             Detailed form analysis from Claude focused on injury prevention
         """
-        exercise_type = biomechanics_data.get('exerciseType', 'Squat')
+        exercise_type = biomechanics_data.get("exerciseType", "Squat")
         exercise_prompt = get_exercise_prompt(exercise_type)
         formatted_data = format_biomechanics_data(biomechanics_data)
 
@@ -42,7 +47,7 @@ class ClaudeService:
                 {
                     "type": "text",
                     "text": exercise_prompt,
-                    "cache_control": {"type": "ephemeral"}
+                    "cache_control": {"type": "ephemeral"},
                 }
             ],
             messages=[
@@ -55,10 +60,9 @@ class ClaudeService:
 
         # Extract text from response (first content block is always text for non-tool calls)
         content_block = message.content[0]
-        if hasattr(content_block, 'text'):
+        if hasattr(content_block, "text"):
             return content_block.text
         raise ValueError("Unexpected response format from Claude API")
-
 
 
 _claude_service = None

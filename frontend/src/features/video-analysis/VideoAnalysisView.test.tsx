@@ -10,11 +10,17 @@ import * as poseDetection from './utils/poseDetection';
 
 // Mock child components
 vi.mock('./components/VideoUploader', () => ({
-  default: ({ onVideoSelected }: { onVideoSelected: (file: File, exercise: string) => void }) => (
+  default: ({
+    onVideoSelected,
+  }: {
+    onVideoSelected: (file: File, exercise: string) => void;
+  }) => (
     <div data-testid="video-uploader">
       <button
         onClick={() => {
-          const mockFile = new File(['video content'], 'test-video.mp4', { type: 'video/mp4' });
+          const mockFile = new File(['video content'], 'test-video.mp4', {
+            type: 'video/mp4',
+          });
           onVideoSelected(mockFile, 'squat');
         }}
         data-testid="select-video-btn"
@@ -49,7 +55,11 @@ vi.mock('./components/VideoPreview', () => ({
       <div>Exercise: {exerciseType}</div>
       <div>Analyzing: {isAnalyzing.toString()}</div>
       <div>Has Results: {(!!results).toString()}</div>
-      <button onClick={onAnalyze} disabled={isAnalyzing} data-testid="analyze-btn">
+      <button
+        onClick={onAnalyze}
+        disabled={isAnalyzing}
+        data-testid="analyze-btn"
+      >
         Analyze
       </button>
       <button onClick={onUploadAnother} data-testid="upload-another-btn">
@@ -132,7 +142,9 @@ describe('VideoAnalysisView', () => {
       // Check preview shows correct information
       expect(screen.getByText(/File: test-video.mp4/)).toBeInTheDocument();
       expect(screen.getByText(/Exercise: squat/)).toBeInTheDocument();
-      expect(screen.getByText(/Video URL: blob:mock-url-test-video.mp4/)).toBeInTheDocument();
+      expect(
+        screen.getByText(/Video URL: blob:mock-url-test-video.mp4/)
+      ).toBeInTheDocument();
     });
 
     it('should create object URL for video', async () => {
@@ -161,12 +173,14 @@ describe('VideoAnalysisView', () => {
 
       // Create a promise we can control
       let resolvePoseDetection: (value: any) => void;
-      const poseDetectionPromise = new Promise((resolve) => {
+      const poseDetectionPromise = new Promise(resolve => {
         resolvePoseDetection = resolve;
       });
 
       // Mock pose detection with controlled promise
-      vi.mocked(poseDetection.analyzeExerciseVideo).mockReturnValue(poseDetectionPromise);
+      vi.mocked(poseDetection.analyzeExerciseVideo).mockReturnValue(
+        poseDetectionPromise
+      );
 
       // Mock successful fetch
       mockFetch.mockResolvedValue({
@@ -219,7 +233,9 @@ describe('VideoAnalysisView', () => {
       const mockBiomechanicsData = { exerciseType: 'squat' };
       const mockAnalysisResponse = { analysis: 'Good form' };
 
-      vi.mocked(poseDetection.analyzeExerciseVideo).mockResolvedValue(mockBiomechanicsData);
+      vi.mocked(poseDetection.analyzeExerciseVideo).mockResolvedValue(
+        mockBiomechanicsData
+      );
       mockFetch.mockResolvedValue({
         ok: true,
         json: async () => mockAnalysisResponse,
@@ -263,7 +279,9 @@ describe('VideoAnalysisView', () => {
       const user = userEvent.setup();
       const mockBiomechanicsData = { exerciseType: 'squat' };
 
-      vi.mocked(poseDetection.analyzeExerciseVideo).mockResolvedValue(mockBiomechanicsData);
+      vi.mocked(poseDetection.analyzeExerciseVideo).mockResolvedValue(
+        mockBiomechanicsData
+      );
 
       // Mock fetch failure
       mockFetch.mockResolvedValue({
@@ -277,7 +295,9 @@ describe('VideoAnalysisView', () => {
       await user.click(screen.getByTestId('analyze-btn'));
 
       await waitFor(() => {
-        expect(screen.getByText(/Backend processing failed/)).toBeInTheDocument();
+        expect(
+          screen.getByText(/Backend processing failed/)
+        ).toBeInTheDocument();
       });
     });
 
@@ -285,7 +305,9 @@ describe('VideoAnalysisView', () => {
       const user = userEvent.setup();
       const mockBiomechanicsData = { exerciseType: 'squat' };
 
-      vi.mocked(poseDetection.analyzeExerciseVideo).mockResolvedValue(mockBiomechanicsData);
+      vi.mocked(poseDetection.analyzeExerciseVideo).mockResolvedValue(
+        mockBiomechanicsData
+      );
 
       // Mock fetch failure without detail
       mockFetch.mockResolvedValue({
@@ -325,7 +347,9 @@ describe('VideoAnalysisView', () => {
       const mockBiomechanicsData = { exerciseType: 'squat' };
       const mockAnalysisResponse = { analysis: 'Good form' };
 
-      vi.mocked(poseDetection.analyzeExerciseVideo).mockResolvedValue(mockBiomechanicsData);
+      vi.mocked(poseDetection.analyzeExerciseVideo).mockResolvedValue(
+        mockBiomechanicsData
+      );
       mockFetch.mockResolvedValue({
         ok: true,
         json: async () => mockAnalysisResponse,
@@ -358,7 +382,9 @@ describe('VideoAnalysisView', () => {
       const mockBiomechanicsData = { exerciseType: 'squat' };
       const mockAnalysisResponse = { analysis: 'Good form' };
 
-      vi.mocked(poseDetection.analyzeExerciseVideo).mockResolvedValue(mockBiomechanicsData);
+      vi.mocked(poseDetection.analyzeExerciseVideo).mockResolvedValue(
+        mockBiomechanicsData
+      );
       mockFetch.mockResolvedValue({
         ok: true,
         json: async () => mockAnalysisResponse,
@@ -416,11 +442,13 @@ describe('VideoAnalysisView', () => {
 
       // Create a promise we can control
       let resolvePoseDetection: (value: any) => void;
-      const poseDetectionPromise = new Promise((resolve) => {
+      const poseDetectionPromise = new Promise(resolve => {
         resolvePoseDetection = resolve;
       });
 
-      vi.mocked(poseDetection.analyzeExerciseVideo).mockReturnValue(poseDetectionPromise);
+      vi.mocked(poseDetection.analyzeExerciseVideo).mockReturnValue(
+        poseDetectionPromise
+      );
       mockFetch.mockResolvedValue({
         ok: true,
         json: async () => mockAnalysisResponse,
@@ -467,7 +495,9 @@ describe('VideoAnalysisView', () => {
         rejectPoseDetection = reject;
       });
 
-      vi.mocked(poseDetection.analyzeExerciseVideo).mockReturnValue(poseDetectionPromise);
+      vi.mocked(poseDetection.analyzeExerciseVideo).mockReturnValue(
+        poseDetectionPromise
+      );
 
       render(<VideoAnalysisView />);
 
@@ -522,7 +552,9 @@ describe('VideoAnalysisView', () => {
       await user.click(screen.getByTestId('select-video-btn'));
 
       // Verify all props are passed correctly
-      expect(screen.getByText(/Video URL: blob:mock-url-test-video.mp4/)).toBeInTheDocument();
+      expect(
+        screen.getByText(/Video URL: blob:mock-url-test-video.mp4/)
+      ).toBeInTheDocument();
       expect(screen.getByText(/File: test-video.mp4/)).toBeInTheDocument();
       expect(screen.getByText(/Exercise: squat/)).toBeInTheDocument();
       expect(screen.getByText(/Analyzing: false/)).toBeInTheDocument();
@@ -534,7 +566,9 @@ describe('VideoAnalysisView', () => {
       const mockBiomechanicsData = { exerciseType: 'squat' };
       const mockAnalysisResponse = { analysis: 'Test analysis result' };
 
-      vi.mocked(poseDetection.analyzeExerciseVideo).mockResolvedValue(mockBiomechanicsData);
+      vi.mocked(poseDetection.analyzeExerciseVideo).mockResolvedValue(
+        mockBiomechanicsData
+      );
       mockFetch.mockResolvedValue({
         ok: true,
         json: async () => mockAnalysisResponse,
@@ -546,7 +580,9 @@ describe('VideoAnalysisView', () => {
       await user.click(screen.getByTestId('analyze-btn'));
 
       await waitFor(() => {
-        expect(screen.getByText(/Analysis: Test analysis result/)).toBeInTheDocument();
+        expect(
+          screen.getByText(/Analysis: Test analysis result/)
+        ).toBeInTheDocument();
       });
     });
   });

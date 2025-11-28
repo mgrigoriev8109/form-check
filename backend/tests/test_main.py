@@ -1,6 +1,7 @@
 """
 Integration tests for main application endpoints
 """
+
 import pytest
 from fastapi.testclient import TestClient
 
@@ -53,8 +54,8 @@ def test_cors_headers(test_client: TestClient) -> None:
         "/health",
         headers={
             "Origin": "http://localhost:5173",
-            "Access-Control-Request-Method": "GET"
-        }
+            "Access-Control-Request-Method": "GET",
+        },
     )
 
     # CORS middleware should add appropriate headers

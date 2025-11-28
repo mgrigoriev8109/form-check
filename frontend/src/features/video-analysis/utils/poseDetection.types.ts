@@ -92,15 +92,29 @@ export type TemporalAnalysis = SquatTemporalAnalysis | DeadliftTemporalAnalysis;
 // EXERCISE CONFIGURATION
 // ============================================================================
 
-export interface ExerciseConfig<M extends ExerciseMetrics = ExerciseMetrics, K extends KeyPositions = KeyPositions, T extends TemporalAnalysis = TemporalAnalysis> {
+export interface ExerciseConfig<
+  M extends ExerciseMetrics = ExerciseMetrics,
+  K extends KeyPositions = KeyPositions,
+  T extends TemporalAnalysis = TemporalAnalysis,
+> {
   name: string;
   requiredLandmarks: Record<string, number>;
   visibilityThresholds: Record<string, number>;
-  calculateMetrics: (landmarks: NormalizedLandmark[], landmarkRefs: Record<string, NormalizedLandmark>) => M;
+  calculateMetrics: (
+    landmarks: NormalizedLandmark[],
+    landmarkRefs: Record<string, NormalizedLandmark>
+  ) => M;
   identifyKeyPositions: (allFramesMetrics: M[]) => K;
-  calculateTemporalPatterns: (allFramesMetrics: M[], keyPositions: K) => T | null;
+  calculateTemporalPatterns: (
+    allFramesMetrics: M[],
+    keyPositions: K
+  ) => T | null;
   riskThresholds: Record<string, number>;
-  detectRiskFlags: (temporalAnalysis: T, keyPositions: K, thresholds: Record<string, number>) => string[];
+  detectRiskFlags: (
+    temporalAnalysis: T,
+    keyPositions: K,
+    thresholds: Record<string, number>
+  ) => string[];
 }
 
 // ============================================================================

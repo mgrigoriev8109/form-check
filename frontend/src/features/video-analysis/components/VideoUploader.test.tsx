@@ -35,15 +35,20 @@ describe('VideoUploader', () => {
   // Helper function to setup video element mock with specific duration
   const setupVideoMock = (duration: number) => {
     const mockVideo = originalCreateElement('video');
-    Object.defineProperty(mockVideo, 'duration', { value: duration, writable: true });
+    Object.defineProperty(mockVideo, 'duration', {
+      value: duration,
+      writable: true,
+    });
 
     // Spy on createElement and only mock video elements
-    vi.spyOn(document, 'createElement').mockImplementation((tagName: string) => {
-      if (tagName === 'video') {
-        return mockVideo;
+    vi.spyOn(document, 'createElement').mockImplementation(
+      (tagName: string) => {
+        if (tagName === 'video') {
+          return mockVideo;
+        }
+        return originalCreateElement(tagName);
       }
-      return originalCreateElement(tagName);
-    });
+    );
 
     return mockVideo;
   };
@@ -70,15 +75,21 @@ describe('VideoUploader', () => {
     it('should render upload area with correct text', () => {
       render(<VideoUploader onVideoSelected={mockOnVideoSelected} />);
 
-      expect(screen.getByText(/Drop your video here, or click to browse/)).toBeInTheDocument();
-      expect(screen.getByText(/MP4 or MOV • Max 30 seconds • Max 100MB/)).toBeInTheDocument();
+      expect(
+        screen.getByText(/Drop your video here, or click to browse/)
+      ).toBeInTheDocument();
+      expect(
+        screen.getByText(/MP4 or MOV • Max 30 seconds • Max 100MB/)
+      ).toBeInTheDocument();
       expect(screen.getByText('Choose File')).toBeInTheDocument();
     });
 
     it('should render video icon', () => {
       render(<VideoUploader onVideoSelected={mockOnVideoSelected} />);
 
-      const svg = screen.getByText(/Drop your video here/).parentElement?.querySelector('svg');
+      const svg = screen
+        .getByText(/Drop your video here/)
+        .parentElement?.querySelector('svg');
       expect(svg).toBeInTheDocument();
     });
 
@@ -122,7 +133,11 @@ describe('VideoUploader', () => {
       render(<VideoUploader onVideoSelected={mockOnVideoSelected} />);
 
       const squatButton = screen.getByText('Squat').closest('button')!;
-      expect(squatButton).toHaveClass('bg-secondary', 'text-white', 'shadow-sm');
+      expect(squatButton).toHaveClass(
+        'bg-secondary',
+        'text-white',
+        'shadow-sm'
+      );
     });
 
     it('should apply correct styles to unselected exercise', async () => {
@@ -130,7 +145,12 @@ describe('VideoUploader', () => {
       render(<VideoUploader onVideoSelected={mockOnVideoSelected} />);
 
       const deadliftButton = screen.getByText('Deadlift').closest('button')!;
-      expect(deadliftButton).toHaveClass('bg-white', 'text-gray-700', 'border', 'border-gray-300');
+      expect(deadliftButton).toHaveClass(
+        'bg-white',
+        'text-gray-700',
+        'border',
+        'border-gray-300'
+      );
     });
   });
 
@@ -140,7 +160,9 @@ describe('VideoUploader', () => {
       render(<VideoUploader onVideoSelected={mockOnVideoSelected} />);
 
       const chooseFileButton = screen.getByText('Choose File');
-      const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
+      const fileInput = document.querySelector(
+        'input[type="file"]'
+      ) as HTMLInputElement;
       const clickSpy = vi.spyOn(fileInput, 'click');
 
       await user.click(chooseFileButton);
@@ -152,8 +174,12 @@ describe('VideoUploader', () => {
       const user = userEvent.setup();
       render(<VideoUploader onVideoSelected={mockOnVideoSelected} />);
 
-      const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
-      const mockFile = new File(['video content'], 'test-video.mp4', { type: 'video/mp4' });
+      const fileInput = document.querySelector(
+        'input[type="file"]'
+      ) as HTMLInputElement;
+      const mockFile = new File(['video content'], 'test-video.mp4', {
+        type: 'video/mp4',
+      });
 
       // Mock video element
       const mockVideo = setupVideoMock(10);
@@ -173,8 +199,12 @@ describe('VideoUploader', () => {
       const user = userEvent.setup();
       render(<VideoUploader onVideoSelected={mockOnVideoSelected} />);
 
-      const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
-      const mockFile = new File(['video content'], 'test-video.mov', { type: 'video/quicktime' });
+      const fileInput = document.querySelector(
+        'input[type="file"]'
+      ) as HTMLInputElement;
+      const mockFile = new File(['video content'], 'test-video.mov', {
+        type: 'video/quicktime',
+      });
 
       // Mock video element
       const mockVideo = setupVideoMock(10);
@@ -195,8 +225,12 @@ describe('VideoUploader', () => {
       const deadliftButton = screen.getByText('Deadlift').closest('button')!;
       await user.click(deadliftButton);
 
-      const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
-      const mockFile = new File(['video content'], 'test-video.mp4', { type: 'video/mp4' });
+      const fileInput = document.querySelector(
+        'input[type="file"]'
+      ) as HTMLInputElement;
+      const mockFile = new File(['video content'], 'test-video.mp4', {
+        type: 'video/mp4',
+      });
 
       // Mock video element
       const mockVideo = setupVideoMock(10);
@@ -213,8 +247,12 @@ describe('VideoUploader', () => {
       const user = userEvent.setup();
       render(<VideoUploader onVideoSelected={mockOnVideoSelected} />);
 
-      const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
-      const mockFile = new File(['video content'], 'test-video.mp4', { type: 'video/mp4' });
+      const fileInput = document.querySelector(
+        'input[type="file"]'
+      ) as HTMLInputElement;
+      const mockFile = new File(['video content'], 'test-video.mp4', {
+        type: 'video/mp4',
+      });
 
       // Mock video element
       const mockVideo = setupVideoMock(10);
@@ -227,8 +265,13 @@ describe('VideoUploader', () => {
     it('should have correct file input attributes', () => {
       render(<VideoUploader onVideoSelected={mockOnVideoSelected} />);
 
-      const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
-      expect(fileInput).toHaveAttribute('accept', 'video/mp4,video/quicktime,video/x-m4v');
+      const fileInput = document.querySelector(
+        'input[type="file"]'
+      ) as HTMLInputElement;
+      expect(fileInput).toHaveAttribute(
+        'accept',
+        'video/mp4,video/quicktime,video/x-m4v'
+      );
       expect(fileInput).toHaveClass('hidden');
     });
   });
@@ -237,34 +280,46 @@ describe('VideoUploader', () => {
     it('should reject invalid file format', () => {
       render(<VideoUploader onVideoSelected={mockOnVideoSelected} />);
 
-      const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
-      const mockFile = new File(['video content'], 'test-video.avi', { type: 'video/avi' });
+      const fileInput = document.querySelector(
+        'input[type="file"]'
+      ) as HTMLInputElement;
+      const mockFile = new File(['video content'], 'test-video.avi', {
+        type: 'video/avi',
+      });
 
       // Manually trigger file input change
       Object.defineProperty(fileInput, 'files', {
         value: [mockFile],
-        writable: false
+        writable: false,
       });
       fireEvent.change(fileInput);
 
-      expect(screen.getByText('Please upload a .mp4 or .mov file')).toBeInTheDocument();
+      expect(
+        screen.getByText('Please upload a .mp4 or .mov file')
+      ).toBeInTheDocument();
       expect(mockOnVideoSelected).not.toHaveBeenCalled();
     });
 
     it('should display error message for invalid format in error container', () => {
       render(<VideoUploader onVideoSelected={mockOnVideoSelected} />);
 
-      const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
-      const mockFile = new File(['video content'], 'test.avi', { type: 'video/avi' });
+      const fileInput = document.querySelector(
+        'input[type="file"]'
+      ) as HTMLInputElement;
+      const mockFile = new File(['video content'], 'test.avi', {
+        type: 'video/avi',
+      });
 
       // Manually trigger file input change
       Object.defineProperty(fileInput, 'files', {
         value: [mockFile],
-        writable: false
+        writable: false,
       });
       fireEvent.change(fileInput);
 
-      const errorElement = screen.getByText('Please upload a .mp4 or .mov file');
+      const errorElement = screen.getByText(
+        'Please upload a .mp4 or .mov file'
+      );
       expect(errorElement).toHaveClass('text-error-dark');
       expect(errorElement.closest('div')).toHaveClass('bg-error/10');
     });
@@ -275,18 +330,26 @@ describe('VideoUploader', () => {
       const user = userEvent.setup();
       render(<VideoUploader onVideoSelected={mockOnVideoSelected} />);
 
-      const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
+      const fileInput = document.querySelector(
+        'input[type="file"]'
+      ) as HTMLInputElement;
 
       // Create a file with size > 100MB
       const largeFileSize = 101 * 1024 * 1024;
-      const mockFile = new File(['x'.repeat(largeFileSize)], 'large-video.mp4', {
-        type: 'video/mp4'
-      });
+      const mockFile = new File(
+        ['x'.repeat(largeFileSize)],
+        'large-video.mp4',
+        {
+          type: 'video/mp4',
+        }
+      );
 
       await user.upload(fileInput, mockFile);
 
       await waitFor(() => {
-        expect(screen.getByText('File size must be less than 100MB')).toBeInTheDocument();
+        expect(
+          screen.getByText('File size must be less than 100MB')
+        ).toBeInTheDocument();
       });
 
       expect(mockOnVideoSelected).not.toHaveBeenCalled();
@@ -296,11 +359,17 @@ describe('VideoUploader', () => {
       const user = userEvent.setup();
       render(<VideoUploader onVideoSelected={mockOnVideoSelected} />);
 
-      const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
+      const fileInput = document.querySelector(
+        'input[type="file"]'
+      ) as HTMLInputElement;
       const smallFileSize = 50 * 1024 * 1024;
-      const mockFile = new File(['x'.repeat(smallFileSize)], 'small-video.mp4', {
-        type: 'video/mp4'
-      });
+      const mockFile = new File(
+        ['x'.repeat(smallFileSize)],
+        'small-video.mp4',
+        {
+          type: 'video/mp4',
+        }
+      );
 
       // Mock video element
       const mockVideo = setupVideoMock(10);
@@ -317,10 +386,12 @@ describe('VideoUploader', () => {
       const user = userEvent.setup();
       render(<VideoUploader onVideoSelected={mockOnVideoSelected} />);
 
-      const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
+      const fileInput = document.querySelector(
+        'input[type="file"]'
+      ) as HTMLInputElement;
       const exactSize = 100 * 1024 * 1024;
       const mockFile = new File(['x'.repeat(exactSize)], 'exact-video.mp4', {
-        type: 'video/mp4'
+        type: 'video/mp4',
       });
 
       // Mock video element
@@ -340,8 +411,12 @@ describe('VideoUploader', () => {
       const user = userEvent.setup();
       render(<VideoUploader onVideoSelected={mockOnVideoSelected} />);
 
-      const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
-      const mockFile = new File(['video content'], 'long-video.mp4', { type: 'video/mp4' });
+      const fileInput = document.querySelector(
+        'input[type="file"]'
+      ) as HTMLInputElement;
+      const mockFile = new File(['video content'], 'long-video.mp4', {
+        type: 'video/mp4',
+      });
 
       // Mock video element with long duration
       const mockVideo = setupVideoMock(45);
@@ -350,8 +425,12 @@ describe('VideoUploader', () => {
       mockVideo.onloadedmetadata?.(new Event('loadedmetadata'));
 
       await waitFor(() => {
-        expect(screen.getByText(/Video must be 30 seconds or less/)).toBeInTheDocument();
-        expect(screen.getByText(/Your video is 45 seconds/)).toBeInTheDocument();
+        expect(
+          screen.getByText(/Video must be 30 seconds or less/)
+        ).toBeInTheDocument();
+        expect(
+          screen.getByText(/Your video is 45 seconds/)
+        ).toBeInTheDocument();
       });
 
       expect(mockOnVideoSelected).not.toHaveBeenCalled();
@@ -361,8 +440,12 @@ describe('VideoUploader', () => {
       const user = userEvent.setup();
       render(<VideoUploader onVideoSelected={mockOnVideoSelected} />);
 
-      const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
-      const mockFile = new File(['video content'], 'short-video.mp4', { type: 'video/mp4' });
+      const fileInput = document.querySelector(
+        'input[type="file"]'
+      ) as HTMLInputElement;
+      const mockFile = new File(['video content'], 'short-video.mp4', {
+        type: 'video/mp4',
+      });
 
       // Mock video element with short duration
       const mockVideo = setupVideoMock(15);
@@ -379,8 +462,12 @@ describe('VideoUploader', () => {
       const user = userEvent.setup();
       render(<VideoUploader onVideoSelected={mockOnVideoSelected} />);
 
-      const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
-      const mockFile = new File(['video content'], 'exact-video.mp4', { type: 'video/mp4' });
+      const fileInput = document.querySelector(
+        'input[type="file"]'
+      ) as HTMLInputElement;
+      const mockFile = new File(['video content'], 'exact-video.mp4', {
+        type: 'video/mp4',
+      });
 
       // Mock video element with exact duration
       const mockVideo = setupVideoMock(30);
@@ -397,8 +484,12 @@ describe('VideoUploader', () => {
       const user = userEvent.setup();
       render(<VideoUploader onVideoSelected={mockOnVideoSelected} />);
 
-      const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
-      const mockFile = new File(['video content'], 'video.mp4', { type: 'video/mp4' });
+      const fileInput = document.querySelector(
+        'input[type="file"]'
+      ) as HTMLInputElement;
+      const mockFile = new File(['video content'], 'video.mp4', {
+        type: 'video/mp4',
+      });
 
       // Mock video element with decimal duration
       const mockVideo = setupVideoMock(45.7);
@@ -407,7 +498,9 @@ describe('VideoUploader', () => {
       mockVideo.onloadedmetadata?.(new Event('loadedmetadata'));
 
       await waitFor(() => {
-        expect(screen.getByText(/Your video is 46 seconds/)).toBeInTheDocument();
+        expect(
+          screen.getByText(/Your video is 46 seconds/)
+        ).toBeInTheDocument();
       });
     });
 
@@ -415,8 +508,12 @@ describe('VideoUploader', () => {
       const user = userEvent.setup();
       render(<VideoUploader onVideoSelected={mockOnVideoSelected} />);
 
-      const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
-      const mockFile = new File(['video content'], 'video.mp4', { type: 'video/mp4' });
+      const fileInput = document.querySelector(
+        'input[type="file"]'
+      ) as HTMLInputElement;
+      const mockFile = new File(['video content'], 'video.mp4', {
+        type: 'video/mp4',
+      });
 
       // Mock video element
       const mockVideo = setupVideoMock(45);
@@ -425,7 +522,9 @@ describe('VideoUploader', () => {
       mockVideo.onloadedmetadata?.(new Event('loadedmetadata'));
 
       await waitFor(() => {
-        expect(mockRevokeObjectURL).toHaveBeenCalledWith(`blob:mock-url-video.mp4`);
+        expect(mockRevokeObjectURL).toHaveBeenCalledWith(
+          `blob:mock-url-video.mp4`
+        );
       });
     });
   });
@@ -472,7 +571,9 @@ describe('VideoUploader', () => {
       render(<VideoUploader onVideoSelected={mockOnVideoSelected} />);
 
       const dropArea = screen.getByText(/Drop your video here/).closest('div')!;
-      const mockFile = new File(['video content'], 'dropped-video.mp4', { type: 'video/mp4' });
+      const mockFile = new File(['video content'], 'dropped-video.mp4', {
+        type: 'video/mp4',
+      });
 
       // Mock video element
       const mockVideo = setupVideoMock(10);
@@ -480,8 +581,8 @@ describe('VideoUploader', () => {
       // Simulate file drop
       fireEvent.drop(dropArea, {
         dataTransfer: {
-          files: [mockFile]
-        }
+          files: [mockFile],
+        },
       });
       mockVideo.onloadedmetadata?.(new Event('loadedmetadata'));
 
@@ -501,8 +602,8 @@ describe('VideoUploader', () => {
       // Then drop
       fireEvent.drop(dropArea, {
         dataTransfer: {
-          files: []
-        }
+          files: [],
+        },
       });
 
       expect(dropArea).not.toHaveClass('border-secondary-light');
@@ -512,16 +613,20 @@ describe('VideoUploader', () => {
       render(<VideoUploader onVideoSelected={mockOnVideoSelected} />);
 
       const dropArea = screen.getByText(/Drop your video here/).closest('div')!;
-      const mockFile = new File(['video content'], 'video.avi', { type: 'video/avi' });
+      const mockFile = new File(['video content'], 'video.avi', {
+        type: 'video/avi',
+      });
 
       // Simulate dropping invalid file
       fireEvent.drop(dropArea, {
         dataTransfer: {
-          files: [mockFile]
-        }
+          files: [mockFile],
+        },
       });
 
-      expect(screen.getByText('Please upload a .mp4 or .mov file')).toBeInTheDocument();
+      expect(
+        screen.getByText('Please upload a .mp4 or .mov file')
+      ).toBeInTheDocument();
       expect(mockOnVideoSelected).not.toHaveBeenCalled();
     });
   });
@@ -530,63 +635,83 @@ describe('VideoUploader', () => {
     it('should clear previous error when new valid file is selected', async () => {
       render(<VideoUploader onVideoSelected={mockOnVideoSelected} />);
 
-      const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
+      const fileInput = document.querySelector(
+        'input[type="file"]'
+      ) as HTMLInputElement;
 
       // First upload invalid file
-      const invalidFile = new File(['content'], 'video.avi', { type: 'video/avi' });
+      const invalidFile = new File(['content'], 'video.avi', {
+        type: 'video/avi',
+      });
       Object.defineProperty(fileInput, 'files', {
         value: [invalidFile],
         writable: false,
-        configurable: true
+        configurable: true,
       });
       fireEvent.change(fileInput);
 
-      expect(screen.getByText('Please upload a .mp4 or .mov file')).toBeInTheDocument();
+      expect(
+        screen.getByText('Please upload a .mp4 or .mov file')
+      ).toBeInTheDocument();
 
       // Then upload valid file
-      const validFile = new File(['content'], 'video.mp4', { type: 'video/mp4' });
+      const validFile = new File(['content'], 'video.mp4', {
+        type: 'video/mp4',
+      });
       const mockVideo = setupVideoMock(10);
 
       Object.defineProperty(fileInput, 'files', {
         value: [validFile],
         writable: false,
-        configurable: true
+        configurable: true,
       });
       fireEvent.change(fileInput);
 
       // Error should be cleared before validation
-      expect(screen.queryByText('Please upload a .mp4 or .mov file')).not.toBeInTheDocument();
+      expect(
+        screen.queryByText('Please upload a .mp4 or .mov file')
+      ).not.toBeInTheDocument();
     });
 
     it('should show only the most recent error', () => {
       render(<VideoUploader onVideoSelected={mockOnVideoSelected} />);
 
-      const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
+      const fileInput = document.querySelector(
+        'input[type="file"]'
+      ) as HTMLInputElement;
 
       // First upload wrong format
-      const wrongFormat = new File(['content'], 'video.avi', { type: 'video/avi' });
+      const wrongFormat = new File(['content'], 'video.avi', {
+        type: 'video/avi',
+      });
       Object.defineProperty(fileInput, 'files', {
         value: [wrongFormat],
         writable: false,
-        configurable: true
+        configurable: true,
       });
       fireEvent.change(fileInput);
 
-      expect(screen.getByText('Please upload a .mp4 or .mov file')).toBeInTheDocument();
+      expect(
+        screen.getByText('Please upload a .mp4 or .mov file')
+      ).toBeInTheDocument();
 
       // Then upload too large file
       const largeFile = new File(['x'.repeat(101 * 1024 * 1024)], 'large.mp4', {
-        type: 'video/mp4'
+        type: 'video/mp4',
       });
       Object.defineProperty(fileInput, 'files', {
         value: [largeFile],
         writable: false,
-        configurable: true
+        configurable: true,
       });
       fireEvent.change(fileInput);
 
-      expect(screen.getByText('File size must be less than 100MB')).toBeInTheDocument();
-      expect(screen.queryByText('Please upload a .mp4 or .mov file')).not.toBeInTheDocument();
+      expect(
+        screen.getByText('File size must be less than 100MB')
+      ).toBeInTheDocument();
+      expect(
+        screen.queryByText('Please upload a .mp4 or .mov file')
+      ).not.toBeInTheDocument();
     });
   });
 
@@ -595,7 +720,9 @@ describe('VideoUploader', () => {
       const user = userEvent.setup();
       render(<VideoUploader onVideoSelected={mockOnVideoSelected} />);
 
-      const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
+      const fileInput = document.querySelector(
+        'input[type="file"]'
+      ) as HTMLInputElement;
 
       // Simulate selecting no file (e.g., clicking cancel in file dialog)
       const changeEvent = new Event('change', { bubbles: true });
@@ -608,7 +735,9 @@ describe('VideoUploader', () => {
       const user = userEvent.setup();
       render(<VideoUploader onVideoSelected={mockOnVideoSelected} />);
 
-      const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
+      const fileInput = document.querySelector(
+        'input[type="file"]'
+      ) as HTMLInputElement;
       const file1 = new File(['content1'], 'video1.mp4', { type: 'video/mp4' });
       const file2 = new File(['content2'], 'video2.mp4', { type: 'video/mp4' });
 
@@ -647,8 +776,12 @@ describe('VideoUploader', () => {
       const user = userEvent.setup();
       render(<VideoUploader onVideoSelected={mockOnVideoSelected} />);
 
-      const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
-      const mockFile = new File(['content'], 'video.mp4', { type: 'video/mp4' });
+      const fileInput = document.querySelector(
+        'input[type="file"]'
+      ) as HTMLInputElement;
+      const mockFile = new File(['content'], 'video.mp4', {
+        type: 'video/mp4',
+      });
 
       const mockVideo = setupVideoMock(10);
 
@@ -662,8 +795,12 @@ describe('VideoUploader', () => {
       const user = userEvent.setup();
       render(<VideoUploader onVideoSelected={mockOnVideoSelected} />);
 
-      const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
-      const mockFile = new File(['content'], 'video.mp4', { type: 'video/mp4' });
+      const fileInput = document.querySelector(
+        'input[type="file"]'
+      ) as HTMLInputElement;
+      const mockFile = new File(['content'], 'video.mp4', {
+        type: 'video/mp4',
+      });
 
       const mockVideo = setupVideoMock(0);
 
@@ -698,7 +835,9 @@ describe('VideoUploader', () => {
     it('should have file input with correct accept attribute', () => {
       render(<VideoUploader onVideoSelected={mockOnVideoSelected} />);
 
-      const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
+      const fileInput = document.querySelector(
+        'input[type="file"]'
+      ) as HTMLInputElement;
       expect(fileInput.accept).toBe('video/mp4,video/quicktime,video/x-m4v');
     });
   });
@@ -713,11 +852,18 @@ describe('VideoUploader', () => {
       await user.click(deadliftButton);
 
       // 2. Upload valid video file
-      const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
-      const mockFile = new File(['content'], 'my-deadlift.mp4', { type: 'video/mp4' });
+      const fileInput = document.querySelector(
+        'input[type="file"]'
+      ) as HTMLInputElement;
+      const mockFile = new File(['content'], 'my-deadlift.mp4', {
+        type: 'video/mp4',
+      });
 
       const mockVideo = document.createElement('video');
-      Object.defineProperty(mockVideo, 'duration', { value: 15, writable: true });
+      Object.defineProperty(mockVideo, 'duration', {
+        value: 15,
+        writable: true,
+      });
       vi.spyOn(document, 'createElement').mockReturnValue(mockVideo as any);
 
       await user.upload(fileInput, mockFile);

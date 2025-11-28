@@ -52,18 +52,16 @@ def format_biomechanics_data(data: dict) -> str:
     Returns:
         Formatted string representation of the data
     """
-    key_positions = data.get('keyPositions', {})
-    temporal = data.get('temporalAnalysis', {})
-    risk_flags = data.get('riskFlags', [])
+    key_positions = data.get("keyPositions", {})
+    temporal = data.get("temporalAnalysis", {})
+    risk_flags = data.get("riskFlags", [])
 
-    bottom = key_positions.get('bottomPosition', {})
+    bottom = key_positions.get("bottomPosition", {})
 
-    formatted = f"""SQUAT DATA ({data.get('frameCount', 0)} frames):
+    return f"""SQUAT DATA ({data.get('frameCount', 0)} frames):
 
 BOTTOM POSITION: Hip {bottom.get('hipAngle', 'N/A')}° | Knee {bottom.get('kneeAngle', 'N/A')}° | Torso {bottom.get('torsoLean', 'N/A')}° | Neck {bottom.get('neckAngle', 'N/A')}°
 
 MOVEMENT PATTERNS: Rise ratio {temporal.get('riseRateRatio', 'N/A')} | Max lean {temporal.get('maxTorsoLean', 'N/A')}° | Min hip angle {temporal.get('minHipAngle', 'N/A')}°
 
 RISK FLAGS: {', '.join(risk_flags) if risk_flags else 'None detected'}"""
-
-    return formatted
