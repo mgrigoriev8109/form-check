@@ -35,7 +35,8 @@
       "Bash(git commit:*)",
       "Bash(git rm:*)",
       "Bash(ruff format:*)",
-      "Bash(ruff check:*)"
+      "Bash(ruff check:*)",
+      "Bash(pipx install:*)"
     ],
     "deny": [],
     "ask": []
