@@ -7,12 +7,14 @@ from pydantic import BaseModel, Field, field_validator
 class BiomechanicsMetrics(BaseModel):
     """Biomechanical metrics for a single frame"""
 
-    hipAngle: float = Field(..., ge=0, le=180, description="Hip joint angle in degrees")
+    hipAngle: float = Field(
+        ..., ge=-45, le=180, description="Hip joint angle in degrees"
+    )
     kneeAngle: float = Field(
         ..., ge=0, le=180, description="Knee joint angle in degrees"
     )
     ankleAngle: float = Field(
-        ..., ge=0, le=180, description="Ankle joint angle in degrees"
+        ..., ge=-45, le=180, description="Ankle joint angle in degrees"
     )
     torsoLean: float = Field(
         ..., ge=-90, le=90, description="Torso lean angle from vertical in degrees"
