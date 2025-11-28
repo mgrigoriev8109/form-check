@@ -70,7 +70,7 @@ jobs:
       - name: Test inter-service communication
         run: |
           echo "Testing frontend can reach backend..."
-          docker compose exec -T frontend wget --spider http://backend:8000/health
+          docker compose exec -T frontend wget --no-verbose --tries=1 -O- http://backend:8000/health
           echo "✓ Inter-service communication working"
 
       - name: Show service logs on failure
