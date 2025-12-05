@@ -13,6 +13,9 @@ app = FastAPI(
     title="Form Check API",
     description="Backend service for analyzing weightlifting form using Claude AI",
     version="0.1.0",
+    # Disable interactive docs in production
+    docs_url="/docs" if os.getenv("ENVIRONMENT") != "production" else None,
+    redoc_url="/redoc" if os.getenv("ENVIRONMENT") != "production" else None,
 )
 
 
@@ -25,8 +28,13 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
     ) -> Response:
         response = await call_next(request)
 
-        # Content Security Policy (for API docs pages)
-        response.headers["Content-Security-Policy"] = "default-src 'self'"
+        # Content Security Policy
+        # Skip CSP for docs routes in development (they need external CDN resources)
+        is_production = os.getenv("ENVIRONMENT") == "production"
+        is_docs_route = request.url.path in ["/docs", "/redoc", "/openapi.json"]
+
+        if is_production or not is_docs_route:
+            response.headers["Content-Security-Policy"] = "default-src 'self'"
 
         # Prevent MIME type sniffing
         response.headers["X-Content-Type-Options"] = "nosniff"
