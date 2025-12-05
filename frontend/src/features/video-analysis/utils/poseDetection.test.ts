@@ -55,7 +55,7 @@ function createStandingSquatLandmarks(): NormalizedLandmark[] {
   const landmarks = createMockPoseLandmarks();
 
   // RIGHT side landmarks for squat (indices from POSE_LANDMARKS)
-  landmarks[0] = createMockLandmark(0.5, 0.1, 0, 1.0);  // NOSE
+  landmarks[0] = createMockLandmark(0.5, 0.1, 0, 1.0); // NOSE
   landmarks[8] = createMockLandmark(0.52, 0.12, 0, 1.0); // RIGHT_EAR
   landmarks[12] = createMockLandmark(0.55, 0.3, 0, 1.0); // RIGHT_SHOULDER
   landmarks[24] = createMockLandmark(0.55, 0.55, 0, 1.0); // RIGHT_HIP
@@ -72,7 +72,7 @@ function createBottomSquatLandmarks(): NormalizedLandmark[] {
   const landmarks = createMockPoseLandmarks();
 
   // Bottom position - hip lower, more knee bend, forward lean
-  landmarks[0] = createMockLandmark(0.5, 0.35, 0, 1.0);  // NOSE (lower)
+  landmarks[0] = createMockLandmark(0.5, 0.35, 0, 1.0); // NOSE (lower)
   landmarks[8] = createMockLandmark(0.52, 0.37, 0, 1.0); // RIGHT_EAR
   landmarks[12] = createMockLandmark(0.55, 0.5, 0, 1.0); // RIGHT_SHOULDER (lower)
   landmarks[24] = createMockLandmark(0.55, 0.75, 0, 1.0); // RIGHT_HIP (much lower)
@@ -89,7 +89,7 @@ function createDeadliftSetupLandmarks(): NormalizedLandmark[] {
   const landmarks = createMockPoseLandmarks();
 
   // Setup position - bent over, hips back
-  landmarks[0] = createMockLandmark(0.5, 0.4, 0, 1.0);   // NOSE
+  landmarks[0] = createMockLandmark(0.5, 0.4, 0, 1.0); // NOSE
   landmarks[8] = createMockLandmark(0.52, 0.42, 0, 1.0); // RIGHT_EAR
   landmarks[12] = createMockLandmark(0.55, 0.5, 0, 1.0); // RIGHT_SHOULDER
   landmarks[24] = createMockLandmark(0.55, 0.65, 0, 1.0); // RIGHT_HIP
@@ -107,7 +107,7 @@ function createDeadliftLockoutLandmarks(): NormalizedLandmark[] {
   const landmarks = createMockPoseLandmarks();
 
   // Lockout position - standing tall
-  landmarks[0] = createMockLandmark(0.5, 0.1, 0, 1.0);   // NOSE
+  landmarks[0] = createMockLandmark(0.5, 0.1, 0, 1.0); // NOSE
   landmarks[8] = createMockLandmark(0.52, 0.12, 0, 1.0); // RIGHT_EAR
   landmarks[12] = createMockLandmark(0.55, 0.3, 0, 1.0); // RIGHT_SHOULDER
   landmarks[24] = createMockLandmark(0.55, 0.55, 0, 1.0); // RIGHT_HIP
@@ -205,7 +205,10 @@ describe('Squat Exercise Configuration', () => {
         ear: landmarks[8],
       };
 
-      const metrics = squatConfig?.calculateMetrics(landmarks, landmarkRefs) as SquatMetrics;
+      const metrics = squatConfig?.calculateMetrics(
+        landmarks,
+        landmarkRefs
+      ) as SquatMetrics;
 
       expect(metrics).toBeDefined();
       expect(metrics.hipAngle).toBeGreaterThan(0);
@@ -229,7 +232,10 @@ describe('Squat Exercise Configuration', () => {
         ear: landmarks[8],
       };
 
-      const metrics = squatConfig?.calculateMetrics(landmarks, landmarkRefs) as SquatMetrics;
+      const metrics = squatConfig?.calculateMetrics(
+        landmarks,
+        landmarkRefs
+      ) as SquatMetrics;
 
       expect(metrics).toBeDefined();
       expect(metrics.hipHeight).toBeLessThan(0.5); // Lower in bottom position
@@ -246,14 +252,23 @@ describe('Squat Exercise Configuration', () => {
         ear: landmarks[8],
       };
 
-      const metrics = squatConfig?.calculateMetrics(landmarks, landmarkRefs) as SquatMetrics;
+      const metrics = squatConfig?.calculateMetrics(
+        landmarks,
+        landmarkRefs
+      ) as SquatMetrics;
 
       // Angles should be rounded to 1 decimal place
-      expect(metrics.hipAngle.toString().split('.')[1]?.length || 0).toBeLessThanOrEqual(1);
-      expect(metrics.kneeAngle.toString().split('.')[1]?.length || 0).toBeLessThanOrEqual(1);
+      expect(
+        metrics.hipAngle.toString().split('.')[1]?.length || 0
+      ).toBeLessThanOrEqual(1);
+      expect(
+        metrics.kneeAngle.toString().split('.')[1]?.length || 0
+      ).toBeLessThanOrEqual(1);
 
       // Heights should be rounded to 3 decimal places
-      expect(metrics.hipHeight.toString().split('.')[1]?.length || 0).toBeLessThanOrEqual(3);
+      expect(
+        metrics.hipHeight.toString().split('.')[1]?.length || 0
+      ).toBeLessThanOrEqual(3);
     });
   });
 
@@ -283,9 +298,15 @@ describe('Squat Exercise Configuration', () => {
         }
       ) as SquatMetrics;
 
-      const allFramesMetrics = [standingMetrics, bottomMetrics, standingMetrics];
+      const allFramesMetrics = [
+        standingMetrics,
+        bottomMetrics,
+        standingMetrics,
+      ];
 
-      const keyPositions = squatConfig?.identifyKeyPositions(allFramesMetrics) as SquatKeyPositions;
+      const keyPositions = squatConfig?.identifyKeyPositions(
+        allFramesMetrics
+      ) as SquatKeyPositions;
 
       expect(keyPositions).toBeDefined();
       expect(keyPositions.setup.frame).toBe(0);
@@ -293,7 +314,9 @@ describe('Squat Exercise Configuration', () => {
       expect(keyPositions.completion.frame).toBe(2);
 
       // Bottom position should have lower hip height
-      expect(keyPositions.bottomPosition.hipHeight).toBeLessThan(keyPositions.setup.hipHeight);
+      expect(keyPositions.bottomPosition.hipHeight).toBeLessThan(
+        keyPositions.setup.hipHeight
+      );
     });
   });
 
@@ -323,8 +346,14 @@ describe('Squat Exercise Configuration', () => {
         }
       ) as SquatMetrics;
 
-      const allFramesMetrics = [standingMetrics, bottomMetrics, standingMetrics];
-      const keyPositions = squatConfig?.identifyKeyPositions(allFramesMetrics) as SquatKeyPositions;
+      const allFramesMetrics = [
+        standingMetrics,
+        bottomMetrics,
+        standingMetrics,
+      ];
+      const keyPositions = squatConfig?.identifyKeyPositions(
+        allFramesMetrics
+      ) as SquatKeyPositions;
 
       const temporalAnalysis = squatConfig?.calculateTemporalPatterns(
         allFramesMetrics,
@@ -385,7 +414,12 @@ describe('Squat Exercise Configuration', () => {
       const mockKeyPositions = {} as SquatKeyPositions;
       const thresholds = squatConfig?.riskThresholds || {};
 
-      const flags = squatConfig?.detectRiskFlags(temporalAnalysis, mockKeyPositions, thresholds) || [];
+      const flags =
+        squatConfig?.detectRiskFlags(
+          temporalAnalysis,
+          mockKeyPositions,
+          thresholds
+        ) || [];
 
       expect(flags.length).toBeGreaterThan(0);
       expect(flags.some(flag => flag.includes('torso lean'))).toBe(true);
@@ -405,7 +439,12 @@ describe('Squat Exercise Configuration', () => {
       const mockKeyPositions = {} as SquatKeyPositions;
       const thresholds = squatConfig?.riskThresholds || {};
 
-      const flags = squatConfig?.detectRiskFlags(temporalAnalysis, mockKeyPositions, thresholds) || [];
+      const flags =
+        squatConfig?.detectRiskFlags(
+          temporalAnalysis,
+          mockKeyPositions,
+          thresholds
+        ) || [];
 
       expect(flags.some(flag => flag.includes('Hip rising faster'))).toBe(true);
     });
@@ -424,9 +463,16 @@ describe('Squat Exercise Configuration', () => {
       const mockKeyPositions = {} as SquatKeyPositions;
       const thresholds = squatConfig?.riskThresholds || {};
 
-      const flags = squatConfig?.detectRiskFlags(temporalAnalysis, mockKeyPositions, thresholds) || [];
+      const flags =
+        squatConfig?.detectRiskFlags(
+          temporalAnalysis,
+          mockKeyPositions,
+          thresholds
+        ) || [];
 
-      expect(flags.some(flag => flag.includes('Neck hyperextension'))).toBe(true);
+      expect(flags.some(flag => flag.includes('Neck hyperextension'))).toBe(
+        true
+      );
     });
 
     it('should detect insufficient depth', () => {
@@ -443,9 +489,16 @@ describe('Squat Exercise Configuration', () => {
       const mockKeyPositions = {} as SquatKeyPositions;
       const thresholds = squatConfig?.riskThresholds || {};
 
-      const flags = squatConfig?.detectRiskFlags(temporalAnalysis, mockKeyPositions, thresholds) || [];
+      const flags =
+        squatConfig?.detectRiskFlags(
+          temporalAnalysis,
+          mockKeyPositions,
+          thresholds
+        ) || [];
 
-      expect(flags.some(flag => flag.includes('Insufficient depth'))).toBe(true);
+      expect(flags.some(flag => flag.includes('Insufficient depth'))).toBe(
+        true
+      );
     });
 
     it('should detect excessive knee forward travel', () => {
@@ -462,9 +515,16 @@ describe('Squat Exercise Configuration', () => {
       const mockKeyPositions = {} as SquatKeyPositions;
       const thresholds = squatConfig?.riskThresholds || {};
 
-      const flags = squatConfig?.detectRiskFlags(temporalAnalysis, mockKeyPositions, thresholds) || [];
+      const flags =
+        squatConfig?.detectRiskFlags(
+          temporalAnalysis,
+          mockKeyPositions,
+          thresholds
+        ) || [];
 
-      expect(flags.some(flag => flag.includes('knee forward travel'))).toBe(true);
+      expect(flags.some(flag => flag.includes('knee forward travel'))).toBe(
+        true
+      );
     });
 
     it('should return empty array when no risks detected', () => {
@@ -481,7 +541,12 @@ describe('Squat Exercise Configuration', () => {
       const mockKeyPositions = {} as SquatKeyPositions;
       const thresholds = squatConfig?.riskThresholds || {};
 
-      const flags = squatConfig?.detectRiskFlags(temporalAnalysis, mockKeyPositions, thresholds) || [];
+      const flags =
+        squatConfig?.detectRiskFlags(
+          temporalAnalysis,
+          mockKeyPositions,
+          thresholds
+        ) || [];
 
       expect(flags).toEqual([]);
     });
@@ -508,7 +573,10 @@ describe('Deadlift Exercise Configuration', () => {
         wrist: landmarks[16],
       };
 
-      const metrics = deadliftConfig?.calculateMetrics(landmarks, landmarkRefs) as DeadliftMetrics;
+      const metrics = deadliftConfig?.calculateMetrics(
+        landmarks,
+        landmarkRefs
+      ) as DeadliftMetrics;
 
       expect(metrics).toBeDefined();
       expect(metrics.hipAngle).toBeGreaterThan(0);
@@ -533,7 +601,10 @@ describe('Deadlift Exercise Configuration', () => {
         wrist: landmarks[16],
       };
 
-      const metrics = deadliftConfig?.calculateMetrics(landmarks, landmarkRefs) as DeadliftMetrics;
+      const metrics = deadliftConfig?.calculateMetrics(
+        landmarks,
+        landmarkRefs
+      ) as DeadliftMetrics;
 
       expect(metrics).toBeDefined();
       expect(metrics.hipHeight).toBeGreaterThan(0.4); // Higher in lockout
@@ -570,7 +641,9 @@ describe('Deadlift Exercise Configuration', () => {
 
       const allFramesMetrics = [setupMetrics, lockoutMetrics, setupMetrics];
 
-      const keyPositions = deadliftConfig?.identifyKeyPositions(allFramesMetrics) as DeadliftKeyPositions;
+      const keyPositions = deadliftConfig?.identifyKeyPositions(
+        allFramesMetrics
+      ) as DeadliftKeyPositions;
 
       expect(keyPositions).toBeDefined();
       expect(keyPositions.setup).toBeDefined();
@@ -579,7 +652,9 @@ describe('Deadlift Exercise Configuration', () => {
       expect(keyPositions.completion).toBeDefined();
 
       // Lockout should have higher hip than start of pull
-      expect(keyPositions.lockout.hipHeight).toBeGreaterThan(keyPositions.startOfPull.hipHeight);
+      expect(keyPositions.lockout.hipHeight).toBeGreaterThan(
+        keyPositions.startOfPull.hipHeight
+      );
     });
   });
 
@@ -612,7 +687,9 @@ describe('Deadlift Exercise Configuration', () => {
       ) as DeadliftMetrics;
 
       const allFramesMetrics = [setupMetrics, lockoutMetrics, setupMetrics];
-      const keyPositions = deadliftConfig?.identifyKeyPositions(allFramesMetrics) as DeadliftKeyPositions;
+      const keyPositions = deadliftConfig?.identifyKeyPositions(
+        allFramesMetrics
+      ) as DeadliftKeyPositions;
 
       const temporalAnalysis = deadliftConfig?.calculateTemporalPatterns(
         allFramesMetrics,
@@ -677,7 +754,12 @@ describe('Deadlift Exercise Configuration', () => {
       const mockKeyPositions = {} as DeadliftKeyPositions;
       const thresholds = deadliftConfig?.riskThresholds || {};
 
-      const flags = deadliftConfig?.detectRiskFlags(temporalAnalysis, mockKeyPositions, thresholds) || [];
+      const flags =
+        deadliftConfig?.detectRiskFlags(
+          temporalAnalysis,
+          mockKeyPositions,
+          thresholds
+        ) || [];
 
       expect(flags.some(flag => flag.includes('back angle'))).toBe(true);
     });
@@ -697,7 +779,12 @@ describe('Deadlift Exercise Configuration', () => {
       const mockKeyPositions = {} as DeadliftKeyPositions;
       const thresholds = deadliftConfig?.riskThresholds || {};
 
-      const flags = deadliftConfig?.detectRiskFlags(temporalAnalysis, mockKeyPositions, thresholds) || [];
+      const flags =
+        deadliftConfig?.detectRiskFlags(
+          temporalAnalysis,
+          mockKeyPositions,
+          thresholds
+        ) || [];
 
       expect(flags.some(flag => flag.includes('Back rounding'))).toBe(true);
     });
@@ -717,9 +804,16 @@ describe('Deadlift Exercise Configuration', () => {
       const mockKeyPositions = {} as DeadliftKeyPositions;
       const thresholds = deadliftConfig?.riskThresholds || {};
 
-      const flags = deadliftConfig?.detectRiskFlags(temporalAnalysis, mockKeyPositions, thresholds) || [];
+      const flags =
+        deadliftConfig?.detectRiskFlags(
+          temporalAnalysis,
+          mockKeyPositions,
+          thresholds
+        ) || [];
 
-      expect(flags.some(flag => flag.includes('Hips rising faster'))).toBe(true);
+      expect(flags.some(flag => flag.includes('Hips rising faster'))).toBe(
+        true
+      );
     });
 
     it('should detect bar path deviation', () => {
@@ -737,7 +831,12 @@ describe('Deadlift Exercise Configuration', () => {
       const mockKeyPositions = {} as DeadliftKeyPositions;
       const thresholds = deadliftConfig?.riskThresholds || {};
 
-      const flags = deadliftConfig?.detectRiskFlags(temporalAnalysis, mockKeyPositions, thresholds) || [];
+      const flags =
+        deadliftConfig?.detectRiskFlags(
+          temporalAnalysis,
+          mockKeyPositions,
+          thresholds
+        ) || [];
 
       expect(flags.some(flag => flag.includes('Bar path'))).toBe(true);
     });
@@ -757,9 +856,16 @@ describe('Deadlift Exercise Configuration', () => {
       const mockKeyPositions = {} as DeadliftKeyPositions;
       const thresholds = deadliftConfig?.riskThresholds || {};
 
-      const flags = deadliftConfig?.detectRiskFlags(temporalAnalysis, mockKeyPositions, thresholds) || [];
+      const flags =
+        deadliftConfig?.detectRiskFlags(
+          temporalAnalysis,
+          mockKeyPositions,
+          thresholds
+        ) || [];
 
-      expect(flags.some(flag => flag.includes('Neck hyperextension'))).toBe(true);
+      expect(flags.some(flag => flag.includes('Neck hyperextension'))).toBe(
+        true
+      );
     });
 
     it('should return empty array when no risks detected', () => {
@@ -777,7 +883,12 @@ describe('Deadlift Exercise Configuration', () => {
       const mockKeyPositions = {} as DeadliftKeyPositions;
       const thresholds = deadliftConfig?.riskThresholds || {};
 
-      const flags = deadliftConfig?.detectRiskFlags(temporalAnalysis, mockKeyPositions, thresholds) || [];
+      const flags =
+        deadliftConfig?.detectRiskFlags(
+          temporalAnalysis,
+          mockKeyPositions,
+          thresholds
+        ) || [];
 
       expect(flags).toEqual([]);
     });

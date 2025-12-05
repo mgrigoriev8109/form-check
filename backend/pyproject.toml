@@ -1,0 +1,100 @@
+[project]
+name = "form-check-backend"
+version = "1.0.0"
+description = "Form check backend API"
+requires-python = ">=3.11"
+
+[tool.ruff]
+# Target Python 3.11
+target-version = "py311"
+
+# Line length to match Black's default
+line-length = 88
+
+# Exclude common directories
+exclude = [
+    ".git",
+    ".mypy_cache",
+    ".pytest_cache",
+    ".ruff_cache",
+    ".venv",
+    "venv",
+    "__pycache__",
+    "htmlcov",
+    "dist",
+    "build",
+]
+
+[tool.ruff.lint]
+# Enable recommended rules
+select = [
+    "E",     # pycodestyle errors
+    "W",     # pycodestyle warnings
+    "F",     # pyflakes
+    "I",     # isort (import sorting)
+    "N",     # pep8-naming
+    "UP",    # pyupgrade
+    "B",     # flake8-bugbear
+    "C4",    # flake8-comprehensions
+    "DTZ",   # flake8-datetimez
+    "T10",   # flake8-debugger
+    "ISC",   # flake8-implicit-str-concat
+    "ICN",   # flake8-import-conventions
+    "PIE",   # flake8-pie
+    "PYI",   # flake8-pyi
+    "Q",     # flake8-quotes
+    "RSE",   # flake8-raise
+    "RET",   # flake8-return
+    "SIM",   # flake8-simplify
+    "TID",   # flake8-tidy-imports
+    "ARG",   # flake8-unused-arguments
+    "PTH",   # flake8-use-pathlib
+    "PD",    # pandas-vet
+    "PGH",   # pygrep-hooks
+    "RUF",   # Ruff-specific rules
+]
+
+# Ignore specific rules if needed
+ignore = [
+    "E501",  # Line too long (handled by formatter)
+    "ISC001", # Conflicts with formatter
+]
+
+# Allow autofix for all enabled rules
+fixable = ["ALL"]
+unfixable = []
+
+# Allow unused variables when underscore-prefixed
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+
+[tool.ruff.lint.per-file-ignores]
+# Ignore certain rules in test files
+"tests/**/*.py" = [
+    "ARG",     # Unused function arguments
+    "S101",    # Use of assert
+]
+# Ignore naming conventions in Pydantic schemas (camelCase for API compatibility)
+"app/features/form_analysis/schemas.py" = [
+    "N815",    # mixedCase variable in class scope (Pydantic fields)
+]
+
+[tool.ruff.format]
+# Use double quotes for strings
+quote-style = "double"
+
+# Indent with spaces
+indent-style = "space"
+
+# Use Unix line endings
+line-ending = "lf"
+
+# Respect magic trailing comma
+skip-magic-trailing-comma = false
+
+[tool.ruff.lint.isort]
+# Organize imports
+known-first-party = ["app"]
+
+[tool.mypy]
+# Keep existing mypy config compatible
+python_version = "3.11"

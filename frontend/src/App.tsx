@@ -1,5 +1,5 @@
-import AppHeader from './components/AppHeader'
-import VideoAnalysisView from './features/video-analysis/VideoAnalysisView'
+import AppHeader from './components/AppHeader';
+import VideoAnalysisView from './features/video-analysis/VideoAnalysisView';
 
 function App() {
   return (
@@ -12,4 +12,4 @@ function App() {
   );
 }
 
-export default App
+export default App;

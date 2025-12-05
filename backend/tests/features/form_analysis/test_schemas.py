@@ -1,18 +1,20 @@
 """
 Unit tests for form analysis Pydantic schemas
 """
+
+from datetime import UTC, datetime
+from typing import Any
+
 import pytest
-from typing import Dict, Any
-from datetime import datetime
 from pydantic import ValidationError
 
 from app.features.form_analysis.schemas import (
     BiomechanicsMetrics,
-    KeyPosition,
-    TemporalAnalysis,
-    KeyPositions,
     FormAnalysisRequest,
-    FormAnalysisResponse
+    FormAnalysisResponse,
+    KeyPosition,
+    KeyPositions,
+    TemporalAnalysis,
 )
 
 
@@ -32,7 +34,7 @@ def test_biomechanics_metrics_valid() -> None:
         neckAngle=155.0,
         hipHeight=0.35,
         shoulderHeight=0.55,
-        kneeForwardTravel=15.0
+        kneeForwardTravel=15.0,
     )
 
     assert metrics.hipAngle == 95.0
@@ -54,7 +56,7 @@ def test_biomechanics_metrics_missing_required_field() -> None:
         ValidationError is raised
     """
     with pytest.raises(ValidationError) as exc_info:
-        BiomechanicsMetrics(
+        BiomechanicsMetrics(  # type: ignore[call-arg]
             hipAngle=95.0,
             kneeAngle=85.0,
             # ankleAngle missing
@@ -62,7 +64,7 @@ def test_biomechanics_metrics_missing_required_field() -> None:
             neckAngle=155.0,
             hipHeight=0.35,
             shoulderHeight=0.55,
-            kneeForwardTravel=15.0
+            kneeForwardTravel=15.0,
         )
 
     errors = exc_info.value.errors()
@@ -79,14 +81,14 @@ def test_biomechanics_metrics_invalid_type() -> None:
     """
     with pytest.raises(ValidationError):
         BiomechanicsMetrics(
-            hipAngle="not-a-number",  # Should be float
+            hipAngle="not-a-number",  # type: ignore[arg-type]
             kneeAngle=85.0,
             ankleAngle=70.0,
             torsoLean=35.0,
             neckAngle=155.0,
             hipHeight=0.35,
             shoulderHeight=0.55,
-            kneeForwardTravel=15.0
+            kneeForwardTravel=15.0,
         )
 
 
@@ -107,7 +109,7 @@ def test_key_position_valid() -> None:
         neckAngle=155.0,
         hipHeight=0.35,
         shoulderHeight=0.55,
-        kneeForwardTravel=15.0
+        kneeForwardTravel=15.0,
     )
 
     assert position.frame == 45
@@ -129,7 +131,7 @@ def test_temporal_analysis_valid() -> None:
         maxTorsoLean=35.0,
         maxKneeForwardTravel=15.0,
         neckExtensionMax=165.0,
-        minHipAngle=95.0
+        minHipAngle=95.0,
     )
 
     assert analysis.hipRiseRate == 0.0133
@@ -139,7 +141,7 @@ def test_temporal_analysis_valid() -> None:
 
 
 @pytest.mark.unit
-def test_key_positions_valid(sample_biomechanics_data: Dict[str, Any]) -> None:
+def test_key_positions_valid(sample_biomechanics_data: dict[str, Any]) -> None:
     """
     Test KeyPositions with valid nested data
 
@@ -158,7 +160,7 @@ def test_key_positions_valid(sample_biomechanics_data: Dict[str, Any]) -> None:
 
 
 @pytest.mark.unit
-def test_form_analysis_request_valid(sample_biomechanics_data: Dict[str, Any]) -> None:
+def test_form_analysis_request_valid(sample_biomechanics_data: dict[str, Any]) -> None:
     """
     Test FormAnalysisRequest with valid complete data
 
@@ -180,7 +182,7 @@ def test_form_analysis_request_valid(sample_biomechanics_data: Dict[str, Any]) -
 
 @pytest.mark.unit
 def test_form_analysis_request_with_risk_flags(
-    sample_biomechanics_data_with_risks: Dict[str, Any]
+    sample_biomechanics_data_with_risks: dict[str, Any],
 ) -> None:
     """
     Test FormAnalysisRequest with risk flags
@@ -219,7 +221,7 @@ def test_form_analysis_request_default_risk_flags() -> None:
                 "neckAngle": 165.0,
                 "hipHeight": 0.95,
                 "shoulderHeight": 1.0,
-                "kneeForwardTravel": 0.0
+                "kneeForwardTravel": 0.0,
             },
             "bottomPosition": {
                 "frame": 45,
@@ -230,7 +232,7 @@ def test_form_analysis_request_default_risk_flags() -> None:
                 "neckAngle": 155.0,
                 "hipHeight": 0.35,
                 "shoulderHeight": 0.55,
-                "kneeForwardTravel": 15.0
+                "kneeForwardTravel": 15.0,
             },
             "completion": {
                 "frame": 89,
@@ -241,8 +243,8 @@ def test_form_analysis_request_default_risk_flags() -> None:
                 "neckAngle": 165.0,
                 "hipHeight": 0.95,
                 "shoulderHeight": 1.0,
-                "kneeForwardTravel": 0.0
-            }
+                "kneeForwardTravel": 0.0,
+            },
         },
         "temporalAnalysis": {
             "hipRiseRate": 0.0133,
@@ -251,11 +253,11 @@ def test_form_analysis_request_default_risk_flags() -> None:
             "maxTorsoLean": 35.0,
             "maxKneeForwardTravel": 15.0,
             "neckExtensionMax": 165.0,
-            "minHipAngle": 95.0
-        }
+            "minHipAngle": 95.0,
+        },
     }
 
-    request = FormAnalysisRequest(**minimal_data)
+    request = FormAnalysisRequest(**minimal_data)  # type: ignore[arg-type]
     assert request.riskFlags == []
 
 
@@ -281,7 +283,7 @@ def test_form_analysis_request_optional_all_frames() -> None:
                 "neckAngle": 165.0,
                 "hipHeight": 0.95,
                 "shoulderHeight": 1.0,
-                "kneeForwardTravel": 0.0
+                "kneeForwardTravel": 0.0,
             },
             "bottomPosition": {
                 "frame": 45,
@@ -292,7 +294,7 @@ def test_form_analysis_request_optional_all_frames() -> None:
                 "neckAngle": 155.0,
                 "hipHeight": 0.35,
                 "shoulderHeight": 0.55,
-                "kneeForwardTravel": 15.0
+                "kneeForwardTravel": 15.0,
             },
             "completion": {
                 "frame": 89,
@@ -303,8 +305,8 @@ def test_form_analysis_request_optional_all_frames() -> None:
                 "neckAngle": 165.0,
                 "hipHeight": 0.95,
                 "shoulderHeight": 1.0,
-                "kneeForwardTravel": 0.0
-            }
+                "kneeForwardTravel": 0.0,
+            },
         },
         "temporalAnalysis": {
             "hipRiseRate": 0.0133,
@@ -313,11 +315,11 @@ def test_form_analysis_request_optional_all_frames() -> None:
             "maxTorsoLean": 35.0,
             "maxKneeForwardTravel": 15.0,
             "neckExtensionMax": 165.0,
-            "minHipAngle": 95.0
-        }
+            "minHipAngle": 95.0,
+        },
     }
 
-    request = FormAnalysisRequest(**minimal_data)
+    request = FormAnalysisRequest(**minimal_data)  # type: ignore[arg-type]
     assert request.allFramesData is None
 
 
@@ -330,9 +332,7 @@ def test_form_analysis_response_valid() -> None:
         Response model is created correctly
     """
     response = FormAnalysisResponse(
-        analysis="Good form overall",
-        timestamp=datetime.utcnow(),
-        exerciseType="squat"
+        analysis="Good form overall", timestamp=datetime.now(UTC), exerciseType="squat"
     )
 
     assert response.analysis == "Good form overall"
@@ -349,9 +349,9 @@ def test_form_analysis_response_missing_required() -> None:
         ValidationError is raised when required fields missing
     """
     with pytest.raises(ValidationError):
-        FormAnalysisResponse(
+        FormAnalysisResponse(  # type: ignore[call-arg]
             # analysis missing
-            timestamp=datetime.utcnow()
+            timestamp=datetime.now(UTC)
             # exerciseType missing
         )
 
@@ -365,9 +365,7 @@ def test_form_analysis_response_serialization() -> None:
         Model can be converted to dictionary and JSON
     """
     response = FormAnalysisResponse(
-        analysis="Test analysis",
-        timestamp=datetime.utcnow(),
-        exerciseType="deadlift"
+        analysis="Test analysis", timestamp=datetime.now(UTC), exerciseType="deadlift"
     )
 
     # Test model_dump
@@ -384,7 +382,7 @@ def test_form_analysis_response_serialization() -> None:
 
 @pytest.mark.unit
 def test_form_analysis_request_model_dump(
-    sample_biomechanics_data: Dict[str, Any]
+    sample_biomechanics_data: dict[str, Any],
 ) -> None:
     """
     Test FormAnalysisRequest can be converted back to dictionary
@@ -420,7 +418,7 @@ def test_negative_angles_validation() -> None:
         neckAngle=140.0,
         hipHeight=0.5,
         shoulderHeight=0.7,
-        kneeForwardTravel=-2.0  # Backward travel
+        kneeForwardTravel=-2.0,  # Backward travel
     )
 
     assert metrics.hipAngle == -10.0

@@ -6,7 +6,11 @@
  * To add a new exercise, create a new exercise config object (see EXERCISE_CONFIGS).
  */
 
-import { Pose, Results as PoseResults, NormalizedLandmark } from '@mediapipe/pose';
+import {
+  Pose,
+  Results as PoseResults,
+  NormalizedLandmark,
+} from '@mediapipe/pose';
 import type {
   Point3D,
   SquatMetrics,
@@ -86,7 +90,11 @@ const VISIBILITY_THRESHOLDS = {
  * @param point2 - Third point {x, y, z}
  * @returns Angle in degrees
  */
-function calculateAngle(point1: Point3D, vertex: Point3D, point2: Point3D): number {
+function calculateAngle(
+  point1: Point3D,
+  vertex: Point3D,
+  point2: Point3D
+): number {
   // Vector from vertex to point1
   const v1 = {
     x: point1.x - vertex.x,
@@ -124,7 +132,8 @@ function calculateAngleFromVertical(point1: Point3D, point2: Point3D): number {
   const dy = point2.y - point1.y;
 
   // atan2 gives angle from horizontal, so we subtract from 90 to get from vertical
-  const angleFromHorizontal = Math.atan2(Math.abs(dx), Math.abs(dy)) * (180 / Math.PI);
+  const angleFromHorizontal =
+    Math.atan2(Math.abs(dx), Math.abs(dy)) * (180 / Math.PI);
   return 90 - angleFromHorizontal;
 }
 
@@ -143,7 +152,11 @@ function calculateHeight(landmark: NormalizedLandmark): number {
 /**
  * Exercise configuration for SQUAT analysis
  */
-const SQUAT_CONFIG: ExerciseConfig<SquatMetrics, SquatKeyPositions, SquatTemporalAnalysis> = {
+const SQUAT_CONFIG: ExerciseConfig<
+  SquatMetrics,
+  SquatKeyPositions,
+  SquatTemporalAnalysis
+> = {
   name: 'Squat',
 
   // Required landmarks for analysis
@@ -163,13 +176,18 @@ const SQUAT_CONFIG: ExerciseConfig<SquatMetrics, SquatKeyPositions, SquatTempora
   },
 
   // Metrics calculation function
-  calculateMetrics: (_landmarks: NormalizedLandmark[], landmarkRefs: Record<string, NormalizedLandmark>): SquatMetrics => {
+  calculateMetrics: (
+    _landmarks: NormalizedLandmark[],
+    landmarkRefs: Record<string, NormalizedLandmark>
+  ): SquatMetrics => {
     const { shoulder, hip, knee, ankle, nose, ear } = landmarkRefs;
 
     // Joint angles
     const hipAngle = calculateAngle(shoulder, hip, knee);
     const kneeAngle = calculateAngle(hip, knee, ankle);
-    const ankleAngle = 180 - calculateAngle(knee, ankle, { x: ankle.x, y: ankle.y + 0.1, z: ankle.z });
+    const ankleAngle =
+      180 -
+      calculateAngle(knee, ankle, { x: ankle.x, y: ankle.y + 0.1, z: ankle.z });
 
     // Torso and neck positioning
     const torsoLean = calculateAngleFromVertical(shoulder, hip);
@@ -195,7 +213,9 @@ const SQUAT_CONFIG: ExerciseConfig<SquatMetrics, SquatKeyPositions, SquatTempora
   },
 
   // Identify key positions in the movement
-  identifyKeyPositions: (allFramesMetrics: SquatMetrics[]): SquatKeyPositions => {
+  identifyKeyPositions: (
+    allFramesMetrics: SquatMetrics[]
+  ): SquatKeyPositions => {
     const setupIdx = 0;
 
     // Bottom position is where hip is lowest
@@ -218,7 +238,10 @@ const SQUAT_CONFIG: ExerciseConfig<SquatMetrics, SquatKeyPositions, SquatTempora
   },
 
   // Calculate temporal patterns specific to squats
-  calculateTemporalPatterns: (allFramesMetrics: SquatMetrics[], keyPositions: SquatKeyPositions): SquatTemporalAnalysis | null => {
+  calculateTemporalPatterns: (
+    allFramesMetrics: SquatMetrics[],
+    keyPositions: SquatKeyPositions
+  ): SquatTemporalAnalysis | null => {
     const bottomIdx = keyPositions.bottomPosition.frame;
     const completionIdx = keyPositions.completion.frame;
 
@@ -227,16 +250,27 @@ const SQUAT_CONFIG: ExerciseConfig<SquatMetrics, SquatKeyPositions, SquatTempora
     const ascentFrames = allFramesMetrics.slice(bottomIdx, completionIdx + 1);
 
     // Hip and shoulder rise during ascent
-    const hipRise = ascentFrames[ascentFrames.length - 1].hipHeight - ascentFrames[0].hipHeight;
-    const shoulderRise = ascentFrames[ascentFrames.length - 1].shoulderHeight - ascentFrames[0].shoulderHeight;
+    const hipRise =
+      ascentFrames[ascentFrames.length - 1].hipHeight -
+      ascentFrames[0].hipHeight;
+    const shoulderRise =
+      ascentFrames[ascentFrames.length - 1].shoulderHeight -
+      ascentFrames[0].shoulderHeight;
 
     const hipRiseRate = parseFloat((hipRise / ascentFrames.length).toFixed(4));
-    const shoulderRiseRate = parseFloat((shoulderRise / ascentFrames.length).toFixed(4));
-    const riseRateRatio = shoulderRiseRate !== 0 ? parseFloat((hipRiseRate / shoulderRiseRate).toFixed(2)) : 0;
+    const shoulderRiseRate = parseFloat(
+      (shoulderRise / ascentFrames.length).toFixed(4)
+    );
+    const riseRateRatio =
+      shoulderRiseRate !== 0
+        ? parseFloat((hipRiseRate / shoulderRiseRate).toFixed(2))
+        : 0;
 
     // Movement quality metrics
     const maxTorsoLean = Math.max(...allFramesMetrics.map(m => m.torsoLean));
-    const maxKneeForwardTravel = Math.max(...allFramesMetrics.map(m => m.kneeForwardTravel));
+    const maxKneeForwardTravel = Math.max(
+      ...allFramesMetrics.map(m => m.kneeForwardTravel)
+    );
     const maxNeckAngle = Math.max(...allFramesMetrics.map(m => m.neckAngle));
     const minHipAngle = Math.min(...allFramesMetrics.map(m => m.hipAngle));
 
@@ -260,27 +294,43 @@ const SQUAT_CONFIG: ExerciseConfig<SquatMetrics, SquatKeyPositions, SquatTempora
     maxKneeForwardTravel: 15,
   },
 
-  detectRiskFlags: (temporalAnalysis: SquatTemporalAnalysis, _keyPositions: SquatKeyPositions, thresholds: Record<string, number>): string[] => {
+  detectRiskFlags: (
+    temporalAnalysis: SquatTemporalAnalysis,
+    _keyPositions: SquatKeyPositions,
+    thresholds: Record<string, number>
+  ): string[] => {
     const flags: string[] = [];
 
     if (temporalAnalysis.maxTorsoLean > thresholds.maxTorsoLean) {
-      flags.push(`Excessive torso lean detected (${temporalAnalysis.maxTorsoLean}° - threshold: ${thresholds.maxTorsoLean}°)`);
+      flags.push(
+        `Excessive torso lean detected (${temporalAnalysis.maxTorsoLean}° - threshold: ${thresholds.maxTorsoLean}°)`
+      );
     }
 
     if (temporalAnalysis.riseRateRatio > thresholds.riseRateRatio) {
-      flags.push(`Hip rising faster than shoulders (ratio: ${temporalAnalysis.riseRateRatio} - threshold: ${thresholds.riseRateRatio})`);
+      flags.push(
+        `Hip rising faster than shoulders (ratio: ${temporalAnalysis.riseRateRatio} - threshold: ${thresholds.riseRateRatio})`
+      );
     }
 
     if (temporalAnalysis.neckExtensionMax > thresholds.neckExtensionMax) {
-      flags.push(`Neck hyperextension detected (${temporalAnalysis.neckExtensionMax}° - threshold: ${thresholds.neckExtensionMax}°)`);
+      flags.push(
+        `Neck hyperextension detected (${temporalAnalysis.neckExtensionMax}° - threshold: ${thresholds.neckExtensionMax}°)`
+      );
     }
 
     if (temporalAnalysis.minHipAngle > thresholds.minHipAngle) {
-      flags.push(`Insufficient depth (hip angle: ${temporalAnalysis.minHipAngle}° - target: <${thresholds.minHipAngle}°)`);
+      flags.push(
+        `Insufficient depth (hip angle: ${temporalAnalysis.minHipAngle}° - target: <${thresholds.minHipAngle}°)`
+      );
     }
 
-    if (temporalAnalysis.maxKneeForwardTravel > thresholds.maxKneeForwardTravel) {
-      flags.push(`Excessive knee forward travel (${temporalAnalysis.maxKneeForwardTravel}% - threshold: ${thresholds.maxKneeForwardTravel}%)`);
+    if (
+      temporalAnalysis.maxKneeForwardTravel > thresholds.maxKneeForwardTravel
+    ) {
+      flags.push(
+        `Excessive knee forward travel (${temporalAnalysis.maxKneeForwardTravel}% - threshold: ${thresholds.maxKneeForwardTravel}%)`
+      );
     }
 
     return flags;
@@ -290,7 +340,11 @@ const SQUAT_CONFIG: ExerciseConfig<SquatMetrics, SquatKeyPositions, SquatTempora
 /**
  * Exercise configuration for DEADLIFT analysis
  */
-const DEADLIFT_CONFIG: ExerciseConfig<DeadliftMetrics, DeadliftKeyPositions, DeadliftTemporalAnalysis> = {
+const DEADLIFT_CONFIG: ExerciseConfig<
+  DeadliftMetrics,
+  DeadliftKeyPositions,
+  DeadliftTemporalAnalysis
+> = {
   name: 'Deadlift',
 
   // Required landmarks for analysis
@@ -310,7 +364,10 @@ const DEADLIFT_CONFIG: ExerciseConfig<DeadliftMetrics, DeadliftKeyPositions, Dea
     wrist: VISIBILITY_THRESHOLDS.RELAXED_ANKLE, // Wrist may be occluded by body
   },
 
-  calculateMetrics: (_landmarks: NormalizedLandmark[], landmarkRefs: Record<string, NormalizedLandmark>): DeadliftMetrics => {
+  calculateMetrics: (
+    _landmarks: NormalizedLandmark[],
+    landmarkRefs: Record<string, NormalizedLandmark>
+  ): DeadliftMetrics => {
     const { shoulder, hip, knee, ankle, nose, ear, wrist } = landmarkRefs;
 
     // Joint angles
@@ -343,7 +400,9 @@ const DEADLIFT_CONFIG: ExerciseConfig<DeadliftMetrics, DeadliftKeyPositions, Dea
     };
   },
 
-  identifyKeyPositions: (allFramesMetrics: DeadliftMetrics[]): DeadliftKeyPositions => {
+  identifyKeyPositions: (
+    allFramesMetrics: DeadliftMetrics[]
+  ): DeadliftKeyPositions => {
     const setupIdx = 0;
 
     // Bottom position is where wrist/bar is lowest (start of pull)
@@ -376,7 +435,10 @@ const DEADLIFT_CONFIG: ExerciseConfig<DeadliftMetrics, DeadliftKeyPositions, Dea
     };
   },
 
-  calculateTemporalPatterns: (allFramesMetrics: DeadliftMetrics[], keyPositions: DeadliftKeyPositions): DeadliftTemporalAnalysis | null => {
+  calculateTemporalPatterns: (
+    allFramesMetrics: DeadliftMetrics[],
+    keyPositions: DeadliftKeyPositions
+  ): DeadliftTemporalAnalysis | null => {
     const startIdx = keyPositions.startOfPull.frame;
     const lockoutIdx = keyPositions.lockout.frame;
 
@@ -386,22 +448,37 @@ const DEADLIFT_CONFIG: ExerciseConfig<DeadliftMetrics, DeadliftKeyPositions, Dea
 
     // Bar path quality (lower deviation = better)
     const avgBarPathDeviation = parseFloat(
-      (pullFrames.reduce((sum, m) => sum + m.barPathDeviation, 0) / pullFrames.length).toFixed(1)
+      (
+        pullFrames.reduce((sum, m) => sum + m.barPathDeviation, 0) /
+        pullFrames.length
+      ).toFixed(1)
     );
-    const maxBarPathDeviation = Math.max(...pullFrames.map(m => m.barPathDeviation));
+    const maxBarPathDeviation = Math.max(
+      ...pullFrames.map(m => m.barPathDeviation)
+    );
 
     // Back angle consistency
     const maxBackAngle = Math.max(...allFramesMetrics.map(m => m.backAngle));
     const minBackAngle = Math.min(...allFramesMetrics.map(m => m.backAngle));
-    const backAngleChange = parseFloat((maxBackAngle - minBackAngle).toFixed(1));
+    const backAngleChange = parseFloat(
+      (maxBackAngle - minBackAngle).toFixed(1)
+    );
 
     // Hip and shoulder rise synchronization
-    const hipRise = pullFrames[pullFrames.length - 1].hipHeight - pullFrames[0].hipHeight;
-    const shoulderRise = pullFrames[pullFrames.length - 1].shoulderHeight - pullFrames[0].shoulderHeight;
+    const hipRise =
+      pullFrames[pullFrames.length - 1].hipHeight - pullFrames[0].hipHeight;
+    const shoulderRise =
+      pullFrames[pullFrames.length - 1].shoulderHeight -
+      pullFrames[0].shoulderHeight;
 
     const hipRiseRate = parseFloat((hipRise / pullFrames.length).toFixed(4));
-    const shoulderRiseRate = parseFloat((shoulderRise / pullFrames.length).toFixed(4));
-    const riseRateRatio = shoulderRiseRate !== 0 ? parseFloat((hipRiseRate / shoulderRiseRate).toFixed(2)) : 0;
+    const shoulderRiseRate = parseFloat(
+      (shoulderRise / pullFrames.length).toFixed(4)
+    );
+    const riseRateRatio =
+      shoulderRiseRate !== 0
+        ? parseFloat((hipRiseRate / shoulderRiseRate).toFixed(2))
+        : 0;
 
     // Neck positioning
     const maxNeckAngle = Math.max(...allFramesMetrics.map(m => m.neckAngle));
@@ -426,27 +503,41 @@ const DEADLIFT_CONFIG: ExerciseConfig<DeadliftMetrics, DeadliftKeyPositions, Dea
     neckExtensionMax: 35, // Looking up too much
   },
 
-  detectRiskFlags: (temporalAnalysis: DeadliftTemporalAnalysis, _keyPositions: DeadliftKeyPositions, thresholds: Record<string, number>): string[] => {
+  detectRiskFlags: (
+    temporalAnalysis: DeadliftTemporalAnalysis,
+    _keyPositions: DeadliftKeyPositions,
+    thresholds: Record<string, number>
+  ): string[] => {
     const flags: string[] = [];
 
     if (temporalAnalysis.maxBackAngle > thresholds.maxBackAngle) {
-      flags.push(`Excessive back angle detected (${temporalAnalysis.maxBackAngle}° - threshold: ${thresholds.maxBackAngle}°)`);
+      flags.push(
+        `Excessive back angle detected (${temporalAnalysis.maxBackAngle}° - threshold: ${thresholds.maxBackAngle}°)`
+      );
     }
 
     if (temporalAnalysis.backAngleChange > thresholds.backAngleChange) {
-      flags.push(`Back rounding detected during lift (change: ${temporalAnalysis.backAngleChange}° - threshold: ${thresholds.backAngleChange}°)`);
+      flags.push(
+        `Back rounding detected during lift (change: ${temporalAnalysis.backAngleChange}° - threshold: ${thresholds.backAngleChange}°)`
+      );
     }
 
     if (temporalAnalysis.riseRateRatio > thresholds.riseRateRatio) {
-      flags.push(`Hips rising faster than shoulders (ratio: ${temporalAnalysis.riseRateRatio} - threshold: ${thresholds.riseRateRatio})`);
+      flags.push(
+        `Hips rising faster than shoulders (ratio: ${temporalAnalysis.riseRateRatio} - threshold: ${thresholds.riseRateRatio})`
+      );
     }
 
     if (temporalAnalysis.maxBarPathDeviation > thresholds.maxBarPathDeviation) {
-      flags.push(`Bar path deviating from vertical (${temporalAnalysis.maxBarPathDeviation}% - threshold: ${thresholds.maxBarPathDeviation}%)`);
+      flags.push(
+        `Bar path deviating from vertical (${temporalAnalysis.maxBarPathDeviation}% - threshold: ${thresholds.maxBarPathDeviation}%)`
+      );
     }
 
     if (temporalAnalysis.neckExtensionMax > thresholds.neckExtensionMax) {
-      flags.push(`Neck hyperextension detected (${temporalAnalysis.neckExtensionMax}° - threshold: ${thresholds.neckExtensionMax}°)`);
+      flags.push(
+        `Neck hyperextension detected (${temporalAnalysis.neckExtensionMax}° - threshold: ${thresholds.neckExtensionMax}°)`
+      );
     }
 
     return flags;
@@ -471,7 +562,10 @@ const EXERCISE_CONFIGS: Record<string, ExerciseConfig> = {
  * @param exerciseConfig - Exercise configuration object
  * @returns Biomechanical metrics or null if insufficient visibility
  */
-function calculateExerciseMetrics(landmarks: NormalizedLandmark[], exerciseConfig: ExerciseConfig): ExerciseMetrics | null {
+function calculateExerciseMetrics(
+  landmarks: NormalizedLandmark[],
+  exerciseConfig: ExerciseConfig
+): ExerciseMetrics | null {
   if (!landmarks || landmarks.length === 0) {
     return null;
   }
@@ -480,30 +574,38 @@ function calculateExerciseMetrics(landmarks: NormalizedLandmark[], exerciseConfi
   const landmarkRefs: Record<string, NormalizedLandmark> = {};
   const landmarkNames: string[] = [];
 
-  for (const [name, index] of Object.entries(exerciseConfig.requiredLandmarks)) {
+  for (const [name, index] of Object.entries(
+    exerciseConfig.requiredLandmarks
+  )) {
     landmarkRefs[name] = landmarks[index];
     landmarkNames.push(name);
   }
 
   // Check visibility with exercise-specific thresholds
   const requiredLandmarks = Object.values(landmarkRefs);
-  const visibilityIssues = requiredLandmarks.map((lm, idx) => {
-    const name = landmarkNames[idx];
-    if (!lm) return `${name}: missing`;
+  const visibilityIssues = requiredLandmarks
+    .map((lm, idx) => {
+      const name = landmarkNames[idx];
+      if (!lm) return `${name}: missing`;
 
-    const threshold = exerciseConfig.visibilityThresholds[name] || VISIBILITY_THRESHOLDS.DEFAULT;
-    if (lm.visibility && lm.visibility < threshold) {
-      return `${name}: low visibility (${lm.visibility.toFixed(2)})`;
-    }
-    return null;
-  }).filter(issue => issue !== null);
+      const threshold =
+        exerciseConfig.visibilityThresholds[name] ||
+        VISIBILITY_THRESHOLDS.DEFAULT;
+      if (lm.visibility && lm.visibility < threshold) {
+        return `${name}: low visibility (${lm.visibility.toFixed(2)})`;
+      }
+      return null;
+    })
+    .filter(issue => issue !== null);
 
   if (visibilityIssues.length > 0) {
     // Check if we meet minimum requirements with relaxed thresholds
     const hasMinimumVisibility = requiredLandmarks.every((lm, idx) => {
       if (!lm) return false;
       const name = landmarkNames[idx];
-      const threshold = exerciseConfig.visibilityThresholds[name] || VISIBILITY_THRESHOLDS.DEFAULT;
+      const threshold =
+        exerciseConfig.visibilityThresholds[name] ||
+        VISIBILITY_THRESHOLDS.DEFAULT;
       return lm.visibility ? lm.visibility >= threshold : false;
     });
 
@@ -523,12 +625,19 @@ function calculateExerciseMetrics(landmarks: NormalizedLandmark[], exerciseConfi
  * @param exerciseConfig - Exercise configuration
  * @returns Temporal analysis
  */
-function analyzeTemporalPatterns(allFramesMetrics: ExerciseMetrics[], keyPositions: KeyPositions, exerciseConfig: ExerciseConfig): TemporalAnalysis | null {
+function analyzeTemporalPatterns(
+  allFramesMetrics: ExerciseMetrics[],
+  keyPositions: KeyPositions,
+  exerciseConfig: ExerciseConfig
+): TemporalAnalysis | null {
   if (!allFramesMetrics || allFramesMetrics.length < 2 || !keyPositions) {
     return null;
   }
 
-  return exerciseConfig.calculateTemporalPatterns(allFramesMetrics as any, keyPositions as any);
+  return exerciseConfig.calculateTemporalPatterns(
+    allFramesMetrics as any,
+    keyPositions as any
+  );
 }
 
 /**
@@ -538,7 +647,11 @@ function analyzeTemporalPatterns(allFramesMetrics: ExerciseMetrics[], keyPositio
  * @param exerciseConfig - Exercise configuration
  * @returns Risk flags
  */
-function detectExerciseRiskFlags(temporalAnalysis: TemporalAnalysis | null, keyPositions: KeyPositions, exerciseConfig: ExerciseConfig): string[] {
+function detectExerciseRiskFlags(
+  temporalAnalysis: TemporalAnalysis | null,
+  keyPositions: KeyPositions,
+  exerciseConfig: ExerciseConfig
+): string[] {
   if (!temporalAnalysis || !keyPositions) {
     return [];
   }
@@ -572,10 +685,12 @@ export async function analyzeExerciseVideo(
   const exerciseConfig = EXERCISE_CONFIGS[exerciseType.toLowerCase()];
 
   if (!exerciseConfig) {
-    throw new Error(`Unsupported exercise type: ${exerciseType}. Supported types: ${Object.keys(EXERCISE_CONFIGS).join(', ')}`);
+    throw new Error(
+      `Unsupported exercise type: ${exerciseType}. Supported types: ${Object.keys(EXERCISE_CONFIGS).join(', ')}`
+    );
   }
 
-  return new Promise(async (resolve, reject) => {
+  return new Promise((resolve, reject) => {
     try {
       // Step 1: Setup video element
       const video = document.createElement('video');
@@ -593,103 +708,122 @@ export async function analyzeExerciseVideo(
       video.preload = 'metadata';
 
       video.addEventListener('loadedmetadata', async () => {
-        const duration = video.duration;
-        canvas.width = video.videoWidth;
-        canvas.height = video.videoHeight;
-
-        // Step 2: Initialize MediaPipe Pose
-        const pose = new Pose({
-          locateFile: (file: string) => {
-            return `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${file}`;
-          },
-        });
-
-        pose.setOptions({
-          modelComplexity: 1,
-          smoothLandmarks: true,
-          enableSegmentation: false,
-          smoothSegmentation: false,
-          minDetectionConfidence: 0.5,
-          minTrackingConfidence: 0.5,
-        });
-
-        // Store results from pose detection
-        const allFramesMetrics: ExerciseMetrics[] = [];
-
-        pose.onResults((results: PoseResults) => {
-          if (results.poseLandmarks) {
-            const metrics = calculateExerciseMetrics(results.poseLandmarks, exerciseConfig);
-
-            if (metrics) {
-              allFramesMetrics.push(metrics);
-            }
-          }
-        });
-
         try {
-          await pose.initialize();
-        } catch (initError: any) {
-          URL.revokeObjectURL(videoUrl);
-          reject(new Error(`Failed to initialize pose detection: ${initError.message}`));
-          return;
-        }
+          const duration = video.duration;
+          canvas.width = video.videoWidth;
+          canvas.height = video.videoHeight;
 
-        // Step 3: Process each frame
-        for (let i = 0; i < frameCount; i++) {
-          const timePoint = (duration * i) / (frameCount - 1);
-
-          await new Promise<void>((resolveFrame) => {
-            video.currentTime = timePoint;
-            video.addEventListener('seeked', async function onSeeked() {
-              context.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-              // Send frame to MediaPipe
-              await pose.send({ image: canvas });
-
-              video.removeEventListener('seeked', onSeeked);
-
-              if (onProgress) {
-                onProgress((i + 1) / frameCount);
-              }
-
-              resolveFrame();
-            }, { once: true });
+          // Step 2: Initialize MediaPipe Pose
+          const pose = new Pose({
+            locateFile: (file: string) => {
+              return `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${file}`;
+            },
           });
-        }
 
-        // Close pose instance
-        pose.close();
+          pose.setOptions({
+            modelComplexity: 1,
+            smoothLandmarks: true,
+            enableSegmentation: false,
+            smoothSegmentation: false,
+            minDetectionConfidence: 0.5,
+            minTrackingConfidence: 0.5,
+          });
 
-        // Step 4: Analyze metrics
-        if (allFramesMetrics.length === 0) {
+          // Store results from pose detection
+          const allFramesMetrics: ExerciseMetrics[] = [];
+
+          pose.onResults((results: PoseResults) => {
+            if (results.poseLandmarks) {
+              const metrics = calculateExerciseMetrics(
+                results.poseLandmarks,
+                exerciseConfig
+              );
+
+              if (metrics) {
+                allFramesMetrics.push(metrics);
+              }
+            }
+          });
+
+          await pose.initialize();
+
+          // Step 3: Process each frame
+          for (let i = 0; i < frameCount; i++) {
+            const timePoint = (duration * i) / (frameCount - 1);
+
+            await new Promise<void>(resolveFrame => {
+              video.currentTime = timePoint;
+              video.addEventListener(
+                'seeked',
+                async function onSeeked() {
+                  context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+                  // Send frame to MediaPipe
+                  await pose.send({ image: canvas });
+
+                  video.removeEventListener('seeked', onSeeked);
+
+                  if (onProgress) {
+                    onProgress((i + 1) / frameCount);
+                  }
+
+                  resolveFrame();
+                },
+                { once: true }
+              );
+            });
+          }
+
+          // Close pose instance
+          pose.close();
+
+          // Step 4: Analyze metrics
+          if (allFramesMetrics.length === 0) {
+            URL.revokeObjectURL(videoUrl);
+            reject(
+              new Error(
+                'Failed to detect pose in video. Ensure your full body (including feet) is visible from the front or back angle.'
+              )
+            );
+            return;
+          }
+
+          const keyPositions = exerciseConfig.identifyKeyPositions(
+            allFramesMetrics as any
+          );
+          const temporalAnalysis = analyzeTemporalPatterns(
+            allFramesMetrics,
+            keyPositions,
+            exerciseConfig
+          );
+          const riskFlags = detectExerciseRiskFlags(
+            temporalAnalysis,
+            keyPositions,
+            exerciseConfig
+          );
+
+          // Step 5: Structure data for backend
+          const analysisData: AnalysisData = {
+            exerciseType: exerciseConfig.name,
+            frameCount: allFramesMetrics.length,
+            duration: `approximately ${Math.round(duration)} seconds`,
+            keyPositions,
+            temporalAnalysis,
+            riskFlags,
+          };
+
           URL.revokeObjectURL(videoUrl);
-          reject(new Error('Failed to detect pose in video. Ensure your full body (including feet) is visible from the front or back angle.'));
-          return;
+          resolve(analysisData);
+        } catch (error) {
+          URL.revokeObjectURL(videoUrl);
+          reject(error);
         }
-
-        const keyPositions = exerciseConfig.identifyKeyPositions(allFramesMetrics as any);
-        const temporalAnalysis = analyzeTemporalPatterns(allFramesMetrics, keyPositions, exerciseConfig);
-        const riskFlags = detectExerciseRiskFlags(temporalAnalysis, keyPositions, exerciseConfig);
-
-        // Step 5: Structure data for backend
-        const analysisData: AnalysisData = {
-          exerciseType: exerciseConfig.name,
-          frameCount: allFramesMetrics.length,
-          duration: `approximately ${Math.round(duration)} seconds`,
-          keyPositions,
-          temporalAnalysis,
-          riskFlags,
-        };
-
-        URL.revokeObjectURL(videoUrl);
-        resolve(analysisData);
       });
 
       video.addEventListener('error', (e: Event) => {
         URL.revokeObjectURL(videoUrl);
         reject(new Error(`Failed to load video: ${(e as ErrorEvent).message}`));
       });
-
     } catch (error) {
       reject(error);
     }
@@ -700,7 +834,11 @@ export async function analyzeExerciseVideo(
  * Legacy function name for backwards compatibility
  * @deprecated Use analyzeExerciseVideo instead
  */
-export async function analyzeSquatVideo(videoFile: File, frameCount: number = 8, onProgress: ((progress: number) => void) | null = null): Promise<AnalysisData> {
+export async function analyzeSquatVideo(
+  videoFile: File,
+  frameCount: number = 8,
+  onProgress: ((progress: number) => void) | null = null
+): Promise<AnalysisData> {
   return analyzeExerciseVideo(videoFile, 'squat', frameCount, onProgress);
 }
 
