@@ -36,7 +36,10 @@
       "Bash(git rm:*)",
       "Bash(ruff format:*)",
       "Bash(ruff check:*)",
-      "Bash(pipx install:*)"
+      "Bash(pipx install:*)",
+      "Bash(npm run type-check:*)",
+      "Bash(npm run)",
+      "Bash(npm run lint:*)"
     ],
     "deny": [],
     "ask": []

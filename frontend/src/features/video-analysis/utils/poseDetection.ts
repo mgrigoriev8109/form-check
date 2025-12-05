@@ -690,7 +690,7 @@ export async function analyzeExerciseVideo(
     );
   }
 
-  return new Promise(async (resolve, reject) => {
+  return new Promise((resolve, reject) => {
     try {
       // Step 1: Setup video element
       const video = document.createElement('video');
@@ -708,121 +708,116 @@ export async function analyzeExerciseVideo(
       video.preload = 'metadata';
 
       video.addEventListener('loadedmetadata', async () => {
-        const duration = video.duration;
-        canvas.width = video.videoWidth;
-        canvas.height = video.videoHeight;
-
-        // Step 2: Initialize MediaPipe Pose
-        const pose = new Pose({
-          locateFile: (file: string) => {
-            return `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${file}`;
-          },
-        });
-
-        pose.setOptions({
-          modelComplexity: 1,
-          smoothLandmarks: true,
-          enableSegmentation: false,
-          smoothSegmentation: false,
-          minDetectionConfidence: 0.5,
-          minTrackingConfidence: 0.5,
-        });
-
-        // Store results from pose detection
-        const allFramesMetrics: ExerciseMetrics[] = [];
-
-        pose.onResults((results: PoseResults) => {
-          if (results.poseLandmarks) {
-            const metrics = calculateExerciseMetrics(
-              results.poseLandmarks,
-              exerciseConfig
-            );
-
-            if (metrics) {
-              allFramesMetrics.push(metrics);
-            }
-          }
-        });
-
         try {
-          await pose.initialize();
-        } catch (initError: any) {
-          URL.revokeObjectURL(videoUrl);
-          reject(
-            new Error(
-              `Failed to initialize pose detection: ${initError.message}`
-            )
-          );
-          return;
-        }
+          const duration = video.duration;
+          canvas.width = video.videoWidth;
+          canvas.height = video.videoHeight;
 
-        // Step 3: Process each frame
-        for (let i = 0; i < frameCount; i++) {
-          const timePoint = (duration * i) / (frameCount - 1);
-
-          await new Promise<void>(resolveFrame => {
-            video.currentTime = timePoint;
-            video.addEventListener(
-              'seeked',
-              async function onSeeked() {
-                context.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-                // Send frame to MediaPipe
-                await pose.send({ image: canvas });
-
-                video.removeEventListener('seeked', onSeeked);
-
-                if (onProgress) {
-                  onProgress((i + 1) / frameCount);
-                }
-
-                resolveFrame();
-              },
-              { once: true }
-            );
+          // Step 2: Initialize MediaPipe Pose
+          const pose = new Pose({
+            locateFile: (file: string) => {
+              return `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${file}`;
+            },
           });
-        }
 
-        // Close pose instance
-        pose.close();
+          pose.setOptions({
+            modelComplexity: 1,
+            smoothLandmarks: true,
+            enableSegmentation: false,
+            smoothSegmentation: false,
+            minDetectionConfidence: 0.5,
+            minTrackingConfidence: 0.5,
+          });
 
-        // Step 4: Analyze metrics
-        if (allFramesMetrics.length === 0) {
-          URL.revokeObjectURL(videoUrl);
-          reject(
-            new Error(
-              'Failed to detect pose in video. Ensure your full body (including feet) is visible from the front or back angle.'
-            )
+          // Store results from pose detection
+          const allFramesMetrics: ExerciseMetrics[] = [];
+
+          pose.onResults((results: PoseResults) => {
+            if (results.poseLandmarks) {
+              const metrics = calculateExerciseMetrics(
+                results.poseLandmarks,
+                exerciseConfig
+              );
+
+              if (metrics) {
+                allFramesMetrics.push(metrics);
+              }
+            }
+          });
+
+          await pose.initialize();
+
+          // Step 3: Process each frame
+          for (let i = 0; i < frameCount; i++) {
+            const timePoint = (duration * i) / (frameCount - 1);
+
+            await new Promise<void>(resolveFrame => {
+              video.currentTime = timePoint;
+              video.addEventListener(
+                'seeked',
+                async function onSeeked() {
+                  context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+                  // Send frame to MediaPipe
+                  await pose.send({ image: canvas });
+
+                  video.removeEventListener('seeked', onSeeked);
+
+                  if (onProgress) {
+                    onProgress((i + 1) / frameCount);
+                  }
+
+                  resolveFrame();
+                },
+                { once: true }
+              );
+            });
+          }
+
+          // Close pose instance
+          pose.close();
+
+          // Step 4: Analyze metrics
+          if (allFramesMetrics.length === 0) {
+            URL.revokeObjectURL(videoUrl);
+            reject(
+              new Error(
+                'Failed to detect pose in video. Ensure your full body (including feet) is visible from the front or back angle.'
+              )
+            );
+            return;
+          }
+
+          const keyPositions = exerciseConfig.identifyKeyPositions(
+            allFramesMetrics as any
           );
-          return;
+          const temporalAnalysis = analyzeTemporalPatterns(
+            allFramesMetrics,
+            keyPositions,
+            exerciseConfig
+          );
+          const riskFlags = detectExerciseRiskFlags(
+            temporalAnalysis,
+            keyPositions,
+            exerciseConfig
+          );
+
+          // Step 5: Structure data for backend
+          const analysisData: AnalysisData = {
+            exerciseType: exerciseConfig.name,
+            frameCount: allFramesMetrics.length,
+            duration: `approximately ${Math.round(duration)} seconds`,
+            keyPositions,
+            temporalAnalysis,
+            riskFlags,
+          };
+
+          URL.revokeObjectURL(videoUrl);
+          resolve(analysisData);
+        } catch (error) {
+          URL.revokeObjectURL(videoUrl);
+          reject(error);
         }
-
-        const keyPositions = exerciseConfig.identifyKeyPositions(
-          allFramesMetrics as any
-        );
-        const temporalAnalysis = analyzeTemporalPatterns(
-          allFramesMetrics,
-          keyPositions,
-          exerciseConfig
-        );
-        const riskFlags = detectExerciseRiskFlags(
-          temporalAnalysis,
-          keyPositions,
-          exerciseConfig
-        );
-
-        // Step 5: Structure data for backend
-        const analysisData: AnalysisData = {
-          exerciseType: exerciseConfig.name,
-          frameCount: allFramesMetrics.length,
-          duration: `approximately ${Math.round(duration)} seconds`,
-          keyPositions,
-          temporalAnalysis,
-          riskFlags,
-        };
-
-        URL.revokeObjectURL(videoUrl);
-        resolve(analysisData);
       });
 
       video.addEventListener('error', (e: Event) => {
